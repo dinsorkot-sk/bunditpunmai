@@ -207,8 +207,7 @@ export default {
                             <UInput v-model="form.description" placeholder="Enter description" class="w-full" />
                         </UFormField>
                         <UFormField label="Content" required>
-                            <UTextarea v-model="form.content" placeholder="Write your course content..." :rows="12"
-                                class="w-full" />
+                            <Editor v-model="form.content" class="w-full" />
                         </UFormField>
                         <UFormField label="Status" required>
                             <USelectMenu v-model="form.status" :items="statusOptions" valueKey="value"

@@ -1,152 +1,84 @@
 <script lang="ts">
-import type { EditorToolbarItem } from '@nuxt/ui'
+import { useEditor } from '~/composables/editor/useEditor'
 
 export default {
-    setup() {
-        return {
-        }
+    props: {
+        modelValue: {
+            type: String,
+            default: '',
+        },
     },
-    data() {
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+        const {
+            value,
+            itemToolbars,
+            mediaTools,
+            imageUpload,
+            videoUpload,
+            resourceInput,
+            openMediaPicker,
+            handleMediaUpload,
+            handleMediaFile,
+            isUploading,
+        } = useEditor(props.modelValue)
+
+        watch(value, (newValue) => {
+            emit('update:modelValue', newValue)
+        })
+
+        watch(() => props.modelValue, (newValue) => {
+            if (newValue !== value.value) {
+                value.value = newValue
+            }
+        })
+
         return {
-            value: `# Drag Handle\nHover over the left side of this block to see the drag handle appear and reorder blocks.`,
-            itemToolbars: [
-                // History controls
-                [{
-                    kind: 'undo',
-                    icon: 'i-lucide-undo',
-                    tooltip: { text: 'Undo' }
-                }, {
-                    kind: 'redo',
-                    icon: 'i-lucide-redo',
-                    tooltip: { text: 'Redo' }
-                }],
-                // Block types
-                [{
-                    icon: 'i-lucide-heading',
-                    tooltip: { text: 'Headings' },
-                    content: {
-                        align: 'start'
-                    },
-                    items: [{
-                        kind: 'heading',
-                        level: 1,
-                        icon: 'i-lucide-heading-1',
-                        label: 'Heading 1'
-                    }, {
-                        kind: 'heading',
-                        level: 2,
-                        icon: 'i-lucide-heading-2',
-                        label: 'Heading 2'
-                    }, {
-                        kind: 'heading',
-                        level: 3,
-                        icon: 'i-lucide-heading-3',
-                        label: 'Heading 3'
-                    }, {
-                        kind: 'heading',
-                        level: 4,
-                        icon: 'i-lucide-heading-4',
-                        label: 'Heading 4'
-                    }]
-                }, {
-                    icon: 'i-lucide-list',
-                    tooltip: { text: 'Lists' },
-                    content: {
-                        align: 'start'
-                    },
-                    items: [{
-                        kind: 'bulletList',
-                        icon: 'i-lucide-list',
-                        label: 'Bullet List'
-                    }, {
-                        kind: 'orderedList',
-                        icon: 'i-lucide-list-ordered',
-                        label: 'Ordered List'
-                    }]
-                }, {
-                    kind: 'blockquote',
-                    icon: 'i-lucide-text-quote',
-                    tooltip: { text: 'Blockquote' }
-                }, {
-                    kind: 'codeBlock',
-                    icon: 'i-lucide-square-code',
-                    tooltip: { text: 'Code Block' }
-                }, {
-                    kind: 'horizontalRule',
-                    icon: 'i-lucide-separator-horizontal',
-                    tooltip: { text: 'Horizontal Rule' }
-                }],
-                // Text formatting
-                [{
-                    kind: 'mark',
-                    mark: 'bold',
-                    icon: 'i-lucide-bold',
-                    tooltip: { text: 'Bold' }
-                }, {
-                    kind: 'mark',
-                    mark: 'italic',
-                    icon: 'i-lucide-italic',
-                    tooltip: { text: 'Italic' }
-                }, {
-                    kind: 'mark',
-                    mark: 'underline',
-                    icon: 'i-lucide-underline',
-                    tooltip: { text: 'Underline' }
-                }, {
-                    kind: 'mark',
-                    mark: 'strike',
-                    icon: 'i-lucide-strikethrough',
-                    tooltip: { text: 'Strikethrough' }
-                }, {
-                    kind: 'mark',
-                    mark: 'code',
-                    icon: 'i-lucide-code',
-                    tooltip: { text: 'Code' }
-                }],
-                // Link
-                [{
-                    kind: 'link',
-                    icon: 'i-lucide-link',
-                    tooltip: { text: 'Link' }
-                }],
-                // Text alignment
-                [{
-                    icon: 'i-lucide-align-justify',
-                    tooltip: { text: 'Text Align' },
-                    content: {
-                        align: 'end'
-                    },
-                    items: [{
-                        kind: 'textAlign',
-                        align: 'left',
-                        icon: 'i-lucide-align-left',
-                        label: 'Align Left'
-                    }, {
-                        kind: 'textAlign',
-                        align: 'center',
-                        icon: 'i-lucide-align-center',
-                        label: 'Align Center'
-                    }, {
-                        kind: 'textAlign',
-                        align: 'right',
-                        icon: 'i-lucide-align-right',
-                        label: 'Align Right'
-                    }, {
-                        kind: 'textAlign',
-                        align: 'justify',
-                        icon: 'i-lucide-align-justify',
-                        label: 'Align Justify'
-                    }]
-                }]
-            ] as EditorToolbarItem[][] 
+            value,
+            itemToolbars,
+            mediaTools,
+            imageUpload,
+            videoUpload,
+            resourceInput,
+            openMediaPicker,
+            handleMediaUpload,
+            handleMediaFile,
+            isUploading,
         }
     },
 }
 </script>
+
 <template>
     <UCard :ui="{ body: 'sm:p-0 p-0' }">
         <UEditor v-slot="{ editor }" v-model="value" content-type="markdown" class="w-full min-h-21">
-            <UEditorToolbar :editor="editor" :items="itemToolbars" class="sm:px-8 overflow-x-auto" />
+            <div class="flex items-center gap-1 sm:px-8 px-2 overflow-x-auto border-b border-default">
+                <UEditorToolbar :editor="editor" :items="itemToolbars" class="border-0 px-0 shrink-0" />
+
+                <USeparator orientation="vertical" class="h-6" />
+
+                <UTooltip v-for="tool in mediaTools" :key="tool.kind" :text="tool.label">
+                    <UButton
+                        :icon="tool.icon"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        :loading="isUploading(tool.kind)"
+                        :aria-label="tool.label"
+                        @click="openMediaPicker(tool.kind)"
+                    />
+                </UTooltip>
+            </div>
+
+            <EditorImageUploadNode ref="imageUpload" @select="handleMediaUpload(editor, 'image', $event)" />
+            <EditorVideoUpload ref="videoUpload" @select="handleMediaUpload(editor, 'video', $event)" />
+            <input
+                ref="resourceInput"
+                type="file"
+                class="hidden"
+                @change="handleMediaFile(editor, 'resource', $event)"
+            >
+
             <UEditorDragHandle :editor="editor" />
         </UEditor>
     </UCard>

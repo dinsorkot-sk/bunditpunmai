@@ -209,7 +209,7 @@ export default {
                 <template #body>
                     <UForm :state="form" class="space-y-4 w-full" @submit="handleSubmit">
                         <UFormField label="Content" required>
-                            <UTextarea v-model="form.content" placeholder="Enter comment" :rows="3" class="w-full"/>
+                            <Editor v-model="form.content" class="w-full" />
                         </UFormField>
                         <UFormField label="Status" required>
                             <USelectMenu v-model="form.status" :items="statusOptions" valueKey="value" labelKey="label"/>
