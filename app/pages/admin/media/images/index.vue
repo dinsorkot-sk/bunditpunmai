@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useImages } from '~/composables/v1/useImages'
 
 interface ApiImage {
     id: number

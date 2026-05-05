@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useRolePermissions } from '~/composables/v1/useRolePermissions'
+import { useRoles } from '~/composables/v1/useRoles'
+import { usePermissions } from '~/composables/v1/usePermissions'
 
 interface ApiRolePermission {
     roleId: number

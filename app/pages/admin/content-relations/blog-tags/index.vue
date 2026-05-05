@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useBlogTags } from '~/composables/v1/useBlogTags'
+import { useBlogs } from '~/composables/v1/useBlogs'
+import { useTags } from '~/composables/v1/useTags'
 
 interface ApiBlogTag {
     blogId: number

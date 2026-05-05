@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { usePermissions } from '~/composables/v1/usePermissions'
 
 interface ApiPermission {
     id: number
@@ -16,7 +17,7 @@ export default {
         const { permissions, loading, total, fetchPermissions, createPermission, updatePermission, deletePermission } = usePermissions()
         const toast = useToast()
         return {
-            permissions,
+            permissions: permissions as unknown as Ref<ApiPermission[]>,
             loading,
             total,
             fetchPermissions,
@@ -41,13 +42,13 @@ export default {
     },
     computed: {
         columns(): TableColumn<ApiPermission>[] {
-            return [
-                { accessorKey: 'id', header: 'ID' },
-                { accessorKey: 'name', header: 'Name' },
-                { accessorKey: 'description', header: 'Description' },
-                { accessorKey: 'actions', header: 'Actions' },
-            ]
-        },
+        return [
+            { accessorKey: 'id', header: 'ID' },
+            { accessorKey: 'name', header: 'Name' },
+            { accessorKey: 'description', header: 'Description' },
+            { id: 'actions', header: 'Actions' },  // <-- id แทน accessorKey
+        ]
+    },
         isEditing() {
             return !!this.editingPermission
         },
@@ -104,7 +105,7 @@ export default {
                 this.submitting = false
             }
         },
-        async handleDelete(permission: { id: number; name: string }) {
+        async handleDelete(permission: ApiPermission) {
             if (confirm(`Delete permission "${permission.name}"?`)) {
                 try {
                     await this.deletePermission(permission.id)
@@ -141,7 +142,8 @@ export default {
                 </template>
                 <template #actions-cell="{ row }">
                     <div class="flex gap-1">
-                        <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEditModal(row.original)" />
+                        <UButton icon="i-lucide-pencil" variant="ghost" size="xs"
+                            @click="openEditModal(row.original)" />
                         <UButton icon="i-lucide-trash" variant="ghost" size="xs" color="error"
                             @click="handleDelete(row.original)" />
                     </div>
@@ -157,14 +159,15 @@ export default {
                 <template #body>
                     <UForm :state="form" class="space-y-4 w-full" @submit="handleSubmit">
                         <UFormField label="Name" required>
-                            <UInput v-model="form.name" placeholder="Enter permission name" class="w-full"/>
+                            <UInput v-model="form.name" placeholder="Enter permission name" class="w-full" />
                         </UFormField>
                         <UFormField label="Description">
-                            <UTextarea v-model="form.description" placeholder="Enter description" class="w-full"/>
+                            <UTextarea v-model="form.description" placeholder="Enter description" class="w-full" />
                         </UFormField>
                         <div class="flex justify-end gap-2">
                             <UButton label="Cancel" variant="outline" @click="showCreateModal = false" />
-                            <UButton type="submit" :label="isEditing ? 'Update' : 'Create'" color="primary" :loading="submitting" />
+                            <UButton type="submit" :label="isEditing ? 'Update' : 'Create'" color="primary"
+                                :loading="submitting" />
                         </div>
                     </UForm>
                 </template>

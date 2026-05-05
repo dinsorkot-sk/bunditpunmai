@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { usePostTags } from '~/composables/v1/usePostTags'
+import { usePosts } from '~/composables/v1/usePosts'
+import { useTags } from '~/composables/v1/useTags'
 
 interface ApiPostTag {
     postId: number

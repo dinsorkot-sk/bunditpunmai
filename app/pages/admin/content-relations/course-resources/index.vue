@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useCourseResources } from '~/composables/v1/useCourseResources'
+import { useCourses } from '~/composables/v1/useCourses'
+import { useResources } from '~/composables/v1/useResources'
 
 interface ApiCourseResource {
     id: number

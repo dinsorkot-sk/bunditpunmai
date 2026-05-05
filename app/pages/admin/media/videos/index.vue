@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useVideos } from '~/composables/v1/useVideos'
 
 interface ApiVideo {
     id: number

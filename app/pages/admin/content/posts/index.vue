@@ -1,5 +1,7 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { usePosts } from '~/composables/v1/usePosts'
+import { useUsers } from '~/composables/v1/useUsers'
 
 interface ApiPost {
     id: number

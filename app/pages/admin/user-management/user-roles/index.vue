@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useUserRoles } from '~/composables/v1/useUserRoles'
+import { useUsers } from '~/composables/v1/useUsers'
+import { useRoles } from '~/composables/v1/useRoles'
 
 interface ApiUserRole {
     userId: number

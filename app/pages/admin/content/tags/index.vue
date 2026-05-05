@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useTags } from '~/composables/v1/useTags'
 
 interface ApiTag {
     id: number

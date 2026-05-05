@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useResources } from '~/composables/v1/useResources'
 
 interface ApiResource {
     id: number

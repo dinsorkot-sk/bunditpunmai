@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useCourseTags } from '~/composables/v1/useCourseTags'
+import { useCourses } from '~/composables/v1/useCourses'
+import { useTags } from '~/composables/v1/useTags'
 
 interface ApiCourseTag {
     courseId: number

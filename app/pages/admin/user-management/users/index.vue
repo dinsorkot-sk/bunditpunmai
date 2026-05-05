@@ -1,5 +1,15 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useUsers } from '~/composables/v1/useUsers'
+
+interface ApiUser {
+    id: number
+    name: string
+    email: string
+    avatar: string
+    createdAt: string
+}
+
 export default {
     setup() {
         definePageMeta({

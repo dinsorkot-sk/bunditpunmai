@@ -1,5 +1,8 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useComments } from '~/composables/v1/useComments'
+import { useUsers } from '~/composables/v1/useUsers'
+import { usePosts } from '~/composables/v1/usePosts'
 
 interface ApiComment {
     id: number

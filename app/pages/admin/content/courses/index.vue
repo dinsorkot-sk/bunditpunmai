@@ -1,5 +1,7 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useCourses } from '~/composables/v1/useCourses'
+import { useUsers } from '~/composables/v1/useUsers'
 
 interface ApiCourse {
     id: number
