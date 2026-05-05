@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 
 interface ApiPost {
@@ -11,128 +11,142 @@ interface ApiPost {
     createdAt: string
 }
 
-definePageMeta({
-    layout: 'admin',
-})
-
-const { posts, loading, total, fetchPosts, createPost, updatePost, deletePost } = usePosts()
-const { users, fetchUsers } = useUsers()
-const toast = useToast()
-
-const limit = ref(20)
-const offset = ref(0)
-const showCreateModal = ref(false)
-const editingPost = ref<ApiPost | null>(null)
-const submitting = ref(false)
-
-const form = ref({
-    title: '',
-    content: '',
-    status: 'draft',
-    authorId: undefined as number | undefined,
-})
-
-// Computed properties
-const columns = computed((): TableColumn<ApiPost>[] => [
-    { accessorKey: 'id', header: 'ID' },
-    { accessorKey: 'title', header: 'Title' },
-    { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'likes', header: 'Likes' },
-    { accessorKey: 'authorId', header: 'Author' },
-    { accessorKey: 'createdAt', header: 'Created At' },
-    { accessorKey: 'actions', header: 'Actions' },
-])
-
-const isEditing = computed(() => !!editingPost.value)
-
-const modalTitle = computed(() => isEditing.value ? 'Edit Post' : 'Create Post')
-
-const authorOptions = computed(() => users.value.map(u => ({ label: u.name, value: u.id })))
-
-const statusOptions = [
-    { label: 'Draft', value: 'draft' },
-    { label: 'Published', value: 'published' },
-    { label: 'Archived', value: 'archived' },
-]
-
-// Watchers
-watch(offset, () => {
-    fetchPosts({ limit: limit.value, offset: offset.value })
-})
-
-// Lifecycle
-onMounted(() => {
-    fetchPosts({ limit: limit.value, offset: offset.value })
-    fetchUsers({ limit: 100 })
-})
-
-// Methods
-function resetForm() {
-    form.value = { title: '', content: '', status: 'draft', authorId: undefined }
-    editingPost.value = null
-}
-
-function openCreateModal() {
-    resetForm()
-    showCreateModal.value = true
-}
-
-function openEditModal(post: ApiPost) {
-    editingPost.value = post
-    form.value = {
-        title: post.title,
-        content: post.content,
-        status: post.status,
-        authorId: post.authorId
-    }
-    showCreateModal.value = true
-}
-
-async function handleSubmit() {
-    if (submitting.value) return
-    if (form.value.authorId == null) return
-
-    submitting.value = true
-    try {
-        if (isEditing.value && editingPost.value) {
-            await updatePost(editingPost.value.id, form.value as any)
-            toast.add({ title: 'Post updated', color: 'success' })
-        } else {
-            await createPost(form.value as any)
-            toast.add({ title: 'Post created', color: 'success' })
+export default {
+    setup() {
+        definePageMeta({
+            layout: 'admin',
+        })
+        const { posts, loading, total, fetchPosts, createPost, updatePost, deletePost } = usePosts()
+        const { users, fetchUsers } = useUsers()
+        const toast = useToast()
+        return {
+            posts,
+            loading,
+            total,
+            fetchPosts,
+            createPost,
+            updatePost,
+            deletePost,
+            users,
+            fetchUsers,
+            toast,
         }
-        showCreateModal.value = false
-        resetForm()
-        fetchPosts({ limit: limit.value, offset: offset.value })
-    } catch (error: unknown) {
-        console.error('Failed to save post:', error)
-        toast.add({ title: 'Failed to save post', color: 'error' })
-    } finally {
-        submitting.value = false
-    }
-}
-
-async function handleDelete(post: ApiPost) {
-    if (confirm(`Delete post "${post.title}"?`)) {
-        try {
-            await deletePost(post.id)
-            toast.add({ title: 'Post deleted', color: 'success' })
-            fetchPosts({ limit: limit.value, offset: offset.value })
-        } catch (error: unknown) {
-            console.error('Failed to delete post:', error)
-            toast.add({ title: 'Failed to delete post', color: 'error' })
+    },
+    data() {
+        return {
+            limit: 20,
+            offset: 0,
+            showCreateModal: false,
+            editingPost: null as ApiPost | null,
+            submitting: false,
+            form: {
+                title: '',
+                content: '',
+                status: 'draft',
+                authorId: undefined as number | undefined,
+            },
+            statusOptions: [
+                { label: 'Draft', value: 'draft' },
+                { label: 'Published', value: 'published' },
+                { label: 'Archived', value: 'archived' },
+            ],
         }
-    }
-}
+    },
+    computed: {
+        columns(): TableColumn<ApiPost>[] {
+            return [
+                { accessorKey: 'id', header: 'ID' },
+                { accessorKey: 'title', header: 'Title' },
+                { accessorKey: 'status', header: 'Status' },
+                { accessorKey: 'likes', header: 'Likes' },
+                { accessorKey: 'authorId', header: 'Author' },
+                { accessorKey: 'createdAt', header: 'Created At' },
+                { accessorKey: 'actions', header: 'Actions' },
+            ]
+        },
+        isEditing() {
+            return !!this.editingPost
+        },
+        modalTitle() {
+            return this.isEditing ? 'Edit Post' : 'Create Post'
+        },
+        authorOptions() {
+            return this.users.map(u => ({ label: u.name, value: u.id }))
+        },
+    },
+    watch: {
+        offset() {
+            this.fetchPosts({ limit: this.limit, offset: this.offset })
+        },
+    },
+    mounted() {
+        this.fetchPosts({ limit: this.limit, offset: this.offset })
+        this.fetchUsers({ limit: 100 })
+    },
+    methods: {
+        resetForm() {
+            this.form = { title: '', content: '', status: 'draft', authorId: undefined }
+            this.editingPost = null
+        },
+        openCreateModal() {
+            this.resetForm()
+            this.showCreateModal = true
+        },
+        openEditModal(post: ApiPost) {
+            this.editingPost = post
+            this.form = {
+                title: post.title,
+                content: post.content,
+                status: post.status,
+                authorId: post.authorId
+            }
+            this.showCreateModal = true
+        },
+        async handleSubmit() {
+            if (this.submitting) return
+            if (this.form.authorId == null) return
 
-function getAuthorName(authorId: number) {
-    const user = users.value.find(u => u.id === authorId)
-    return user ? user.name : `User #${authorId}`
+            this.submitting = true
+            try {
+                if (this.isEditing && this.editingPost) {
+                    await this.updatePost(this.editingPost.id, this.form as any)
+                    this.toast.add({ title: 'Post updated', color: 'success' })
+                } else {
+                    await this.createPost(this.form as any)
+                    this.toast.add({ title: 'Post created', color: 'success' })
+                }
+                this.showCreateModal = false
+                this.resetForm()
+                this.fetchPosts({ limit: this.limit, offset: this.offset })
+            } catch (error: unknown) {
+                console.error('Failed to save post:', error)
+                this.toast.add({ title: 'Failed to save post', color: 'error' })
+            } finally {
+                this.submitting = false
+            }
+        },
+        async handleDelete(post: ApiPost) {
+            if (confirm(`Delete post "${post.title}"?`)) {
+                try {
+                    await this.deletePost(post.id)
+                    this.toast.add({ title: 'Post deleted', color: 'success' })
+                    this.fetchPosts({ limit: this.limit, offset: this.offset })
+                } catch (error: unknown) {
+                    console.error('Failed to delete post:', error)
+                    this.toast.add({ title: 'Failed to delete post', color: 'error' })
+                }
+            }
+        },
+        getAuthorName(authorId: number) {
+            const user = this.users.find(u => u.id === authorId)
+            return user ? user.name : `User #${authorId}`
+        },
+        formatDate(date: string) {
+            return new Date(date).toLocaleDateString()
+        },
+    },
 }
-
-function formatDate(date: string) {
-    return new Date(date).toLocaleDateString()
-}</script>
+</script>
 
 <template>
     <UDashboardPanel resizable>

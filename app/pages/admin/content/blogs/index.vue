@@ -1,32 +1,6 @@
-<script setup lang="ts">
+<script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 
-definePageMeta({
-    layout: 'admin',
-})
-
-// Composables
-const { blogs, loading, total, fetchBlogs, createBlog, updateBlog, deleteBlog } = useBlogs()
-const { users, fetchUsers } = useUsers()
-const toast = useToast()
-
-// State
-const limit = ref(20)
-const offset = ref(0)
-const showCreateModal = ref(false)
-const editingBlog = ref<ApiBlog | null>(null)
-const submitting = ref(false)
-
-// Form state
-const form = ref({
-    title: '',
-    description: '',
-    content: '',
-    status: 'draft',
-    authorId: undefined as number | undefined,
-})
-
-// Interface for blog data
 interface ApiBlog {
     id: number
     title: string
@@ -38,109 +12,144 @@ interface ApiBlog {
     createdAt: string
 }
 
-// Computed
-const columns = computed(() => [
-    { accessorKey: 'id', header: 'ID' },
-    { accessorKey: 'title', header: 'Title' },
-    { accessorKey: 'description', header: 'Description' },
-    { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'likes', header: 'Likes' },
-    { accessorKey: 'authorId', header: 'Author' },
-    { accessorKey: 'createdAt', header: 'Created At' },
-    { accessorKey: 'actions', header: 'Actions' },
-])
-
-const isEditing = computed(() => !!editingBlog.value)
-
-const modalTitle = computed(() => isEditing.value ? 'Edit Blog' : 'Create Blog')
-
-const authorOptions = computed(() => users.value.map(u => ({ label: u.name, value: u.id })))
-
-const statusOptions = [
-    { label: 'Draft', value: 'draft' },
-    { label: 'Published', value: 'published' },
-    { label: 'Archived', value: 'archived' },
-]
-
-// Methods
-function resetForm() {
-    form.value = { title: '', description: '', content: '', status: 'draft', authorId: undefined }
-    editingBlog.value = null
-}
-
-function openCreateModal() {
-    resetForm()
-    showCreateModal.value = true
-}
-
-function openEditModal(blog: ApiBlog) {
-    editingBlog.value = blog
-    form.value = {
-        title: blog.title,
-        description: blog.description,
-        content: blog.content,
-        status: blog.status,
-        authorId: blog.authorId,
-    }
-    showCreateModal.value = true
-}
-
-async function handleSubmit() {
-    if (submitting.value) return
-    if (form.value.authorId == null) return
-
-    submitting.value = true
-    try {
-        if (isEditing.value && editingBlog.value) {
-            await updateBlog(editingBlog.value.id, form.value as { title: string; description: string; content: string; status: string; authorId: number; likes?: number })
-            toast.add({ title: 'Blog updated', color: 'success' })
-        } else {
-            await createBlog(form.value as { title: string; description: string; content: string; status: string; authorId: number; likes?: number })
-            toast.add({ title: 'Blog created', color: 'success' })
+export default {
+    setup() {
+        definePageMeta({
+            layout: 'admin',
+        })
+        const { blogs, loading, total, fetchBlogs, createBlog, updateBlog, deleteBlog } = useBlogs()
+        const { users, fetchUsers } = useUsers()
+        const toast = useToast()
+        return {
+            blogs,
+            loading,
+            total,
+            fetchBlogs,
+            createBlog,
+            updateBlog,
+            deleteBlog,
+            users,
+            fetchUsers,
+            toast,
         }
-        showCreateModal.value = false
-        resetForm()
-        fetchBlogs({ limit: limit.value, offset: offset.value })
-    } catch (error: unknown) {
-        console.error('Failed to save blog:', error)
-        toast.add({ title: 'Failed to save blog', color: 'error' })
-    } finally {
-        submitting.value = false
-    }
-}
-
-async function handleDelete(blog: { id: number; title: string }) {
-    if (confirm(`Delete blog "${blog.title}"?`)) {
-        try {
-            await deleteBlog(blog.id)
-            toast.add({ title: 'Blog deleted', color: 'success' })
-            fetchBlogs({ limit: limit.value, offset: offset.value })
-        } catch (error: unknown) {
-            console.error('Failed to delete blog:', error)
-            toast.add({ title: 'Failed to delete blog', color: 'error' })
+    },
+    data() {
+        return {
+            limit: 20,
+            offset: 0,
+            showCreateModal: false,
+            editingBlog: null as ApiBlog | null,
+            submitting: false,
+            form: {
+                title: '',
+                description: '',
+                content: '',
+                status: 'draft',
+                authorId: undefined as number | undefined,
+            },
+            statusOptions: [
+                { label: 'Draft', value: 'draft' },
+                { label: 'Published', value: 'published' },
+                { label: 'Archived', value: 'archived' },
+            ],
         }
-    }
+    },
+    computed: {
+        columns(): TableColumn<ApiBlog>[] {
+            return [
+                { accessorKey: 'id', header: 'ID' },
+                { accessorKey: 'title', header: 'Title' },
+                { accessorKey: 'description', header: 'Description' },
+                { accessorKey: 'status', header: 'Status' },
+                { accessorKey: 'likes', header: 'Likes' },
+                { accessorKey: 'authorId', header: 'Author' },
+                { accessorKey: 'createdAt', header: 'Created At' },
+                { accessorKey: 'actions', header: 'Actions' },
+            ]
+        },
+        isEditing() {
+            return !!this.editingBlog
+        },
+        modalTitle() {
+            return this.isEditing ? 'Edit Blog' : 'Create Blog'
+        },
+        authorOptions() {
+            return this.users.map(u => ({ label: u.name, value: u.id }))
+        },
+    },
+    watch: {
+        offset() {
+            this.fetchBlogs({ limit: this.limit, offset: this.offset })
+        },
+    },
+    mounted() {
+        this.fetchBlogs({ limit: this.limit, offset: this.offset })
+        this.fetchUsers({ limit: 100 })
+    },
+    methods: {
+        resetForm() {
+            this.form = { title: '', description: '', content: '', status: 'draft', authorId: undefined }
+            this.editingBlog = null
+        },
+        openCreateModal() {
+            this.resetForm()
+            this.showCreateModal = true
+        },
+        openEditModal(blog: ApiBlog) {
+            this.editingBlog = blog
+            this.form = {
+                title: blog.title,
+                description: blog.description,
+                content: blog.content,
+                status: blog.status,
+                authorId: blog.authorId,
+            }
+            this.showCreateModal = true
+        },
+        async handleSubmit() {
+            if (this.submitting) return
+            if (this.form.authorId == null) return
+
+            this.submitting = true
+            try {
+                if (this.isEditing && this.editingBlog) {
+                    await this.updateBlog(this.editingBlog.id, this.form as { title: string; description: string; content: string; status: string; authorId: number; likes?: number })
+                    this.toast.add({ title: 'Blog updated', color: 'success' })
+                } else {
+                    await this.createBlog(this.form as { title: string; description: string; content: string; status: string; authorId: number; likes?: number })
+                    this.toast.add({ title: 'Blog created', color: 'success' })
+                }
+                this.showCreateModal = false
+                this.resetForm()
+                this.fetchBlogs({ limit: this.limit, offset: this.offset })
+            } catch (error: unknown) {
+                console.error('Failed to save blog:', error)
+                this.toast.add({ title: 'Failed to save blog', color: 'error' })
+            } finally {
+                this.submitting = false
+            }
+        },
+        async handleDelete(blog: { id: number; title: string }) {
+            if (confirm(`Delete blog "${blog.title}"?`)) {
+                try {
+                    await this.deleteBlog(blog.id)
+                    this.toast.add({ title: 'Blog deleted', color: 'success' })
+                    this.fetchBlogs({ limit: this.limit, offset: this.offset })
+                } catch (error: unknown) {
+                    console.error('Failed to delete blog:', error)
+                    this.toast.add({ title: 'Failed to delete blog', color: 'error' })
+                }
+            }
+        },
+        getAuthorName(authorId: number) {
+            const user = this.users.find(u => u.id === authorId)
+            return user ? user.name : `User #${authorId}`
+        },
+        formatDate(date: string) {
+            return new Date(date).toLocaleDateString()
+        },
+    },
 }
-
-function getAuthorName(authorId: number) {
-    const user = users.value.find(u => u.id === authorId)
-    return user ? user.name : `User #${authorId}`
-}
-
-function formatDate(date: string) {
-    return new Date(date).toLocaleDateString()
-}
-
-// Watchers
-watch(offset, () => {
-    fetchBlogs({ limit: limit.value, offset: offset.value })
-})
-
-// Lifecycle
-onMounted(() => {
-    fetchBlogs({ limit: limit.value, offset: offset.value })
-    fetchUsers({ limit: 100 })
-})
 </script>
 
 <template>
