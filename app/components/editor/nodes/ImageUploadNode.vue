@@ -1,0 +1,142 @@
+<script setup lang="ts">
+import type { NodeViewProps } from '@tiptap/vue-3'
+import { NodeViewWrapper } from '@tiptap/vue-3'
+import type { Image } from '#shared/types/entities/image'
+
+const props = defineProps<NodeViewProps>()
+
+const { editor, node, getPos } = props
+
+const isUploading = ref(false)
+const uploadError = ref<string | null>(null)
+const altText = ref('')
+const selectedFile = ref<File | null>(null)
+
+watch(selectedFile, async (file) => {
+  if (!file || !editor || typeof getPos !== 'function') return
+
+  isUploading.value = true
+  uploadError.value = null
+
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (altText.value) {
+      formData.append('altText', altText.value)
+    }
+
+    const response = await $fetch<Image>('/api/v1/images', {
+      method: 'POST',
+      body: formData,
+    })
+
+    // Replace the upload node with an actual image node
+    const pos = getPos()
+    if (typeof pos === 'number') {
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from: pos, to: pos + node.nodeSize })
+        .insertContent({
+          type: 'image',
+          attrs: {
+            src: response.url,
+            alt: response.altText || altText.value || '',
+          },
+        })
+        .run()
+    }
+  } catch (error: any) {
+    uploadError.value = error?.data?.statusMessage || error?.message || 'Failed to upload image'
+    console.error('Image upload failed:', error)
+  } finally {
+    isUploading.value = false
+    selectedFile.value = null
+  }
+})
+
+const handleCancel = () => {
+  if (!editor || typeof getPos !== 'function') return
+
+  const pos = getPos()
+  if (typeof pos !== 'number') return
+
+  editor
+    .chain()
+    .focus()
+    .deleteRange({ from: pos, to: pos + node.nodeSize })
+    .run()
+}
+</script>
+
+<template>
+  <NodeViewWrapper class="image-upload-node">
+    <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <UIcon name="i-lucide-image" class="w-4 h-4" />
+          <span>Image Upload</span>
+        </div>
+        
+        <UFileUpload
+          v-model="selectedFile"
+          :multiple="false"
+          accept="image/*"
+          :max-size="8 * 1024 * 1024"
+          :disabled="isUploading"
+        >
+          <template #default>
+            <div class="flex flex-col items-center gap-2 py-4">
+              <UIcon
+                :name="isUploading ? 'i-lucide-loader-2' : 'i-lucide-upload'"
+                :class="isUploading ? 'animate-spin' : ''"
+                class="w-8 h-8 text-gray-400"
+              />
+              <span class="text-sm text-gray-500">
+                {{ isUploading ? 'Uploading...' : 'Click or drag image here' }}
+              </span>
+              <span class="text-xs text-gray-400">
+                Max size: 8MB
+              </span>
+            </div>
+          </template>
+        </UFileUpload>
+        
+        <UInput
+          v-model="altText"
+          placeholder="Alt text (optional)"
+          size="sm"
+          :disabled="isUploading"
+          class="w-full"
+        />
+        
+        <UAlert
+          v-if="uploadError"
+          color="error"
+          variant="soft"
+          :title="uploadError"
+          icon="i-lucide-alert-circle"
+          class="mt-2"
+        />
+        
+        <div class="flex justify-end gap-2 mt-2">
+          <UButton
+            size="sm"
+            variant="ghost"
+            color="neutral"
+            :disabled="isUploading"
+            @click="handleCancel"
+          >
+            Cancel
+          </UButton>
+        </div>
+      </div>
+    </div>
+  </NodeViewWrapper>
+</template>
+
+<style scoped>
+.image-upload-node {
+  margin: 0.5rem 0;
+}
+</style>

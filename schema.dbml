@@ -1,0 +1,125 @@
+Table users {
+    id  int [pk, increment]
+    name varchar [not null]
+    email varchar [not null, unique]
+    password varchar [not null]
+    avatar varchar [not null]
+    createdAt datetime [not null]
+}
+
+Table user_roles {
+    userId int [not null, ref: > users.id]
+    roleId int [not null, ref: > roles.id]
+    primary key (userId, roleId)
+}
+
+Table roles {
+    id int [pk, increment]
+    name varchar [not null, unique]
+    createdAt datetime [not null]
+}
+
+Table permissions {
+  id int [pk, increment]
+  name varchar [not null, unique] // ตัวอย่าง: "user_create", "user_read"
+  description varchar
+}
+
+Table role_permissions {
+  roleId int [not null, ref: > roles.id]
+  permissionId int [not null, ref: > permissions.id]
+  primary key (roleId, permissionId)
+}
+
+Table posts {
+    id  int [pk, increment]
+    title varchar [not null]
+    content text [not null]
+    likes int [not null, default: 0]
+    status enum('draft', 'published') [not null]
+    authorId int [not null, ref: > users.id]
+    createdAt datetime [not null]
+}
+
+Table comments {
+    id  int [pk, increment]
+    content text [not null]
+    status enum('pending', 'approved', 'rejected') [not null]
+    postId int [not null, ref: > posts.id]
+    authorId int [not null, ref: > users.id]
+    createdAt datetime [not null]
+}
+
+Table tags {
+    id  int [pk, increment]
+    name varchar [not null, unique]
+}
+
+Table post_tags {
+    postId int [not null, ref: > posts.id]
+    tagId int [not null, ref: > tags.id]
+    primary key (postId, tagId)
+}
+
+Table blogs {
+    id int [pk, increment]
+    title varchar [not null]
+    description text [not null]
+    content text [not null]
+    likes int [not null, default: 0]
+    status enum('draft', 'published') [not null]
+    authorId int [not null, ref: > users.id]
+    createdAt datetime [not null]
+}
+
+Table blog_tags {
+    blogId int [not null, ref: > blogs.id]
+    tagId int [not null, ref: > tags.id]
+    primary key (blogId, tagId)
+}
+
+Table courses {
+    id int [pk, increment]
+    title varchar [not null]
+    description text [not null]
+    content text [not null]
+    likes int [not null, default: 0]
+    status enum('draft', 'published') [not null]
+    instructorId int [not null, ref: > users.id]
+    createdAt datetime [not null]
+}
+
+Table course_tags {
+    courseId int [not null, ref: > courses.id]
+    tagId int [not null, ref: > tags.id]
+    primary key (courseId, tagId)
+}
+
+Table course_resource {
+    id int [pk, increment]
+    courseId int [not null, ref: > courses.id]
+    resourceId int [not null, ref: > resources.id]
+    primary key (courseId, resourceId)
+}
+
+Table images {
+    id int [pk, increment]
+    url varchar [not null]
+    altText varchar [not null]
+    createdAt datetime [not null]
+}
+
+Table videos {
+    id int [pk, increment]
+    url varchar [not null]
+    altText varchar [not null]
+    createdAt datetime [not null]
+}
+
+Table resources {
+    id int [pk, increment]
+    title varchar [not null]
+    description text [not null]
+    url varchar [not null]
+    createdAt datetime [not null]
+}
