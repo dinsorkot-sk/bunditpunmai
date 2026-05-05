@@ -162,7 +162,7 @@ const selectedNode = ref<{ node: JSONContent, pos: number }>()
 // Handle items for drag handle dropdown
 const handleItems = (editor: Editor): DropdownMenuItem[][] => {
     if (!selectedNode.value?.node?.type) return []
-    
+
     return mapEditorItems(editor, [[
         { type: 'label', label: upperFirst(selectedNode.value.node.type) },
         { kind: 'paragraph', label: 'Paragraph', icon: 'i-lucide-type' },
@@ -231,11 +231,11 @@ function openCreateModal() {
 
 function openEditModal(post: ApiPost) {
     editingPost.value = post
-    form.value = { 
-        title: post.title, 
-        content: post.content, 
-        status: post.status, 
-        authorId: post.authorId 
+    form.value = {
+        title: post.title,
+        content: post.content,
+        status: post.status,
+        authorId: post.authorId
     }
     showCreateModal.value = true
 }
@@ -243,7 +243,7 @@ function openEditModal(post: ApiPost) {
 async function handleSubmit() {
     if (submitting.value) return
     if (form.value.authorId == null) return
-    
+
     submitting.value = true
     try {
         if (isEditing.value && editingPost.value) {
@@ -303,7 +303,8 @@ function formatDate(date: string) {
         <template #body>
             <UTable :data="posts" :columns="columns" :loading="loading" sticky>
                 <template #status-cell="{ row }">
-                    <UBadge :label="row.original.status" :color="row.original.status === 'published' ? 'success' : 'neutral'" />
+                    <UBadge :label="row.original.status"
+                        :color="row.original.status === 'published' ? 'success' : 'neutral'" />
                 </template>
                 <template #authorId-cell="{ row }">
                     {{ getAuthorName(row.original.authorId) }}
@@ -313,7 +314,8 @@ function formatDate(date: string) {
                 </template>
                 <template #actions-cell="{ row }">
                     <div class="flex gap-1">
-                        <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEditModal(row.original)" />
+                        <UButton icon="i-lucide-pencil" variant="ghost" size="xs"
+                            @click="openEditModal(row.original)" />
                         <UButton icon="i-lucide-trash" variant="ghost" size="xs" color="error"
                             @click="handleDelete(row.original)" />
                     </div>
@@ -325,119 +327,79 @@ function formatDate(date: string) {
                 <UButton label="Next" :disabled="total < limit" @click="offset += limit" />
             </div>
 
-            <UModal v-model:open="showCreateModal" :title="modalTitle" fullscreen >
+            <UModal v-model:open="showCreateModal" :title="modalTitle" fullscreen>
                 <template #body>
                     <UForm :state="form" class="space-y-4 w-full" @submit="handleSubmit">
                         <UFormField label="Title" required>
                             <UInput v-model="form.title" placeholder="Enter title" class="w-full" />
                         </UFormField>
                         <UFormField label="Content" required>
-                            <UEditor
-                                ref="editorRef"
-                                v-slot="{ editor, handlers }"
-                                v-model="form.content"
-                                content-type="markdown"
-                                :extensions="[
-                                    Emoji,
-                                    TextAlign.configure({ types: ['heading', 'paragraph'] }),
-                                    ImageUpload,
-                                    VideoUpload,
-                                    ResourceUpload
-                                ]"
-                                :handlers="customHandlers"
-                                placeholder="Write your post content..."
-                                :ui="{ base: 'p-8 sm:px-16 py-13.5' }"
-                                class="w-full"
-                            >
-                                <!-- Fixed toolbar (sticky at top) -->
-                                <UEditorToolbar 
-                                    :editor="editor" 
-                                    :items="fixedToolbarItems" 
-                                    class="border-b border-muted sticky top-0 inset-x-0 px-8 sm:px-16 py-2 z-50 bg-default overflow-x-auto"
-                                />
-                                
-                                <!-- Bubble toolbar (on text selection) -->
-                                <UEditorToolbar
-                                    :editor="editor"
-                                    :items="bubbleToolbarItems"
-                                    layout="bubble"
-                                    :should-show="({ editor: editorInstance, view, state }) => {
-                                        if (editorInstance.isActive('imageUpload') || editorInstance.isActive('videoUpload') || editorInstance.isActive('resourceUpload')) {
-                                            return false
-                                        }
-                                        const { selection } = state
-                                        return view.hasFocus() && !selection.empty
-                                    }"
-                                />
-                                
-                                <!-- Suggestion menu (triggered by /) -->
-                                <UEditorSuggestionMenu 
-                                    :editor="editor" 
-                                    :items="suggestionItems" 
-                                />
-                                
-                                <!-- Mention menu (triggered by @) -->
-                                <UEditorMentionMenu 
-                                    v-if="mentionItems.length > 0"
-                                    :editor="editor" 
-                                    :items="mentionItems" 
-                                />
-                                
-                                <!-- Emoji menu (triggered by :) -->
-                                <UEditorEmojiMenu 
-                                    :editor="editor" 
-                                    :items="emojiItems" 
-                                />
-                                
-                                <!-- Drag handle for reordering blocks -->
-                                <UEditorDragHandle 
-                                    v-slot="{ ui, onClick }" 
-                                    :editor="editor" 
-                                    @node-change="selectedNode = $event"
-                                >
-                                    <UButton
-                                        icon="i-lucide-plus"
-                                        color="neutral"
-                                        variant="ghost"
-                                        size="sm"
-                                        :class="ui.handle()"
-                                        @click="(e) => {
-                                            e.stopPropagation()
-                                            const selected = onClick()
-                                            handlers.suggestion?.execute(editor, { pos: selected?.pos }).run()
-                                        }"
-                                    />
-                                    
-                                    <UDropdownMenu
-                                        v-slot="{ open }"
-                                        :modal="false"
-                                        :items="handleItems(editor)"
-                                        :content="{ side: 'left' }"
-                                        :ui="{ content: 'w-48', label: 'text-xs' }"
-                                        @update:open="editor.chain().setMeta('lockDragHandle', $event).run()"
-                                    >
-                                        <UButton
-                                            color="neutral"
-                                            variant="ghost"
-                                            active-variant="soft"
-                                            size="sm"
-                                            icon="i-lucide-grip-vertical"
-                                            :active="open"
-                                            :class="ui.handle()"
-                                        />
-                                    </UDropdownMenu>
-                                </UEditorDragHandle>
-                            </UEditor>
+                            <UCard :ui="{ body: 'sm:p-0 p-0' }" class="w-full">
+                                <UEditor ref="editorRef" v-slot="{ editor, handlers }" v-model="form.content"
+                                    content-type="markdown" :extensions="[
+                                        Emoji,
+                                        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+                                        ImageUpload,
+                                        VideoUpload,
+                                        ResourceUpload
+                                    ]" :handlers="customHandlers" placeholder="Write your post content..."
+                                    :ui="{ base: 'p-8 sm:px-16 py-13.5' }" class="w-full">
+                                    <!-- Fixed toolbar (sticky at top) -->
+                                    <UEditorToolbar :editor="editor" :items="fixedToolbarItems"
+                                        class="border-b border-muted sticky top-0 inset-x-0 px-8 sm:px-16 py-2 z-50 bg-default overflow-x-auto" />
+
+                                    <!-- Bubble toolbar (on text selection) -->
+                                    <UEditorToolbar :editor="editor" :items="bubbleToolbarItems" layout="bubble"
+                                        :should-show="({ editor: editorInstance, view, state }) => {
+                                            if (editorInstance.isActive('imageUpload') || editorInstance.isActive('videoUpload') || editorInstance.isActive('resourceUpload')) {
+                                                return false
+                                            }
+                                            const { selection } = state
+                                            return view.hasFocus() && !selection.empty
+                                        }" />
+
+                                    <!-- Suggestion menu (triggered by /) -->
+                                    <UEditorSuggestionMenu :editor="editor" :items="suggestionItems" />
+
+                                    <!-- Mention menu (triggered by @) -->
+                                    <UEditorMentionMenu v-if="mentionItems.length > 0" :editor="editor"
+                                        :items="mentionItems" />
+
+                                    <!-- Emoji menu (triggered by :) -->
+                                    <UEditorEmojiMenu :editor="editor" :items="emojiItems" />
+
+                                    <!-- Drag handle for reordering blocks -->
+                                    <UEditorDragHandle v-slot="{ ui, onClick }" :editor="editor"
+                                        @node-change="selectedNode = $event">
+                                        <UButton icon="i-lucide-plus" color="neutral" variant="ghost" size="sm"
+                                            :class="ui.handle()" @click="(e) => {
+                                                e.stopPropagation()
+                                                const selected = onClick()
+                                                handlers.suggestion?.execute(editor, { pos: selected?.pos }).run()
+                                            }" />
+
+                                        <UDropdownMenu v-slot="{ open }" :modal="false" :items="handleItems(editor)"
+                                            :content="{ side: 'left' }" :ui="{ content: 'w-48', label: 'text-xs' }"
+                                            @update:open="editor.chain().setMeta('lockDragHandle', $event).run()">
+                                            <UButton color="neutral" variant="ghost" active-variant="soft" size="sm"
+                                                icon="i-lucide-grip-vertical" :active="open" :class="ui.handle()" />
+                                        </UDropdownMenu>
+                                    </UEditorDragHandle>
+                                </UEditor>
+                            </UCard>
                         </UFormField>
                         <UFormField label="Status" required>
-                            <USelectMenu v-model="form.status" :items="statusOptions" valueKey="value" labelKey="label" />
+                            <USelectMenu v-model="form.status" :items="statusOptions" valueKey="value"
+                                labelKey="label" />
                         </UFormField>
                         <UFormField label="Author" required>
-                            <USelectMenu v-model="form.authorId" :items="authorOptions" placeholder="Select author" valueKey="value" labelKey="label" />
+                            <USelectMenu v-model="form.authorId" :items="authorOptions" placeholder="Select author"
+                                valueKey="value" labelKey="label" />
                         </UFormField>
                         <div class="flex justify-end gap-2">
                             <UButton label="Cancel" variant="outline" @click="showCreateModal = false" />
-                            <UButton type="submit" :label="isEditing ? 'Update' : 'Create'" color="primary" :loading="submitting" />
+                            <UButton type="submit" :label="isEditing ? 'Update' : 'Create'" color="primary"
+                                :loading="submitting" />
                         </div>
                     </UForm>
                 </template>

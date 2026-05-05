@@ -88,7 +88,7 @@ const handleCancel = () => {
 
 <template>
   <NodeViewWrapper class="resource-upload-node">
-    <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+    <div class="border border-dashed rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
       <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <UIcon name="i-lucide-file" class="w-4 h-4" />
