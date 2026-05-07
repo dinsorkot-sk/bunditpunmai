@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.104",
+    "@iconify-json/simple-icons": "^1.2.81",
     "@nuxt/test-utils": "^4.0.2",
     "@tiptap/core": "^3.22.5",
     "@tiptap/extension-emoji": "^3.22.5",
