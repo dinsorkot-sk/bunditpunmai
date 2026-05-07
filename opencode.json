@@ -1,0 +1,186 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "npm run*": "allow",
+          "yarn*": "allow"
+        }
+      },
+      "color": "#4ade80"
+    },
+
+    "plan": {
+      "mode": "primary",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny"
+      },
+      "color": "#60a5fa"
+    },
+
+    "analyst": {
+      "description": "Analyzes requirements and creates implementation plans. Invoke first for any new feature, refactor, or ambiguous request.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "prompt": "{file:./.opencode/agents/analyst.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "websearch": "allow"
+      },
+      "color": "#a78bfa"
+    },
+
+    "backend": {
+      "description": "Implements backend logic — APIs, services, database queries, and server-side code.",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "prompt": "{file:./.opencode/agents/backend.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff*": "allow",
+          "npm run*": "allow",
+          "yarn*": "allow",
+          "python*": "allow",
+          "go *": "allow"
+        }
+      },
+      "color": "#f59e0b"
+    },
+
+    "frontend": {
+      "description": "Implements UI components, pages, styles, and client-side logic.",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "prompt": "{file:./.opencode/agents/frontend.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff*": "allow",
+          "npm run*": "allow",
+          "yarn*": "allow",
+          "npx*": "allow"
+        }
+      },
+      "color": "#fb7185"
+    },
+
+    "reviewer": {
+      "description": "Reviews code for correctness, security, performance, and maintainability. Read-only.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/agents/reviewer.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "git status": "allow",
+          "grep *": "allow"
+        }
+      },
+      "color": "#22d3ee"
+    },
+
+    "tester": {
+      "description": "Writes and runs tests — unit, integration, and regression. Invoke after implementation and review.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "prompt": "{file:./.opencode/agents/tester.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "npm test*": "allow",
+          "yarn test*": "allow",
+          "pytest*": "allow",
+          "go test*": "allow",
+          "jest*": "allow",
+          "vitest*": "allow",
+          "git diff*": "allow"
+        }
+      },
+      "color": "#86efac"
+    },
+
+    "debugger": {
+      "description": "Investigates bugs and performs root cause analysis. Read-only — produces a diagnosis for the backend agent to fix.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/agents/debugger.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git blame*": "allow",
+          "grep *": "allow"
+        }
+      },
+      "color": "#f97316"
+    },
+
+    "refactor": {
+      "description": "Cleans up and restructures existing code without changing behavior. Use for technical debt and code quality improvements.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "prompt": "{file:./.opencode/agents/refactor.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "grep *": "allow",
+          "npm test*": "allow",
+          "yarn test*": "allow",
+          "pytest*": "allow"
+        }
+      },
+      "color": "#c084fc"
+    },
+
+    "devops": {
+      "description": "Handles infrastructure, CI/CD, Docker, Kubernetes, and deployments. High-risk — all destructive ops require confirmation.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/agents/devops.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff*": "allow",
+          "docker ps": "allow",
+          "docker logs*": "allow",
+          "kubectl get*": "allow",
+          "kubectl describe*": "allow",
+          "kubectl logs*": "allow"
+        }
+      },
+      "color": "#ef4444"
+    }
+  }
+}
