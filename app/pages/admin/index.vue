@@ -1,199 +1,181 @@
-<script lang="ts">
+<script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import type { RecentItem } from '#shared/types/dashboard'
 import { useDashboard } from '~/composables/v1/useDashboard'
+
+definePageMeta({ layout: 'admin' })
 
 type BadgeColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 
-export default {
-  setup() {
-    definePageMeta({ layout: 'admin' })
-    const { stats, recent, loading, error, fetchDashboard } = useDashboard()
-    const toast = useToast()
-    return { stats, recent, loading, error, fetchDashboard, toast }
-  },
+const { stats, recent, loading, error, fetchDashboard } = useDashboard()
+const toast = useToast()
 
-  data() {
-    return { recentLimit: 5 }
-  },
+const recentLimit = ref(5)
 
-  computed: {
-    statCards(): Array<{
-      label: string
-      value: number
-      icon: string
-      to: string
-      breakdown?: Array<{ label: string; value: number; color: BadgeColor }>
-    }> {
-      if (!this.stats) return []
-      return [
-        {
-          label: 'Users',
-          value: this.stats.users,
-          icon: 'i-lucide-users',
-          to: '/admin/user-management/users',
-        },
-        {
-          label: 'Posts',
-          value: this.stats.posts.total,
-          icon: 'i-lucide-file-text',
-          to: '/admin/content/posts',
-          breakdown: [
-            { label: 'Published', value: this.stats.posts.published, color: 'success' },
-            { label: 'Draft', value: this.stats.posts.draft, color: 'warning' },
-            { label: 'Archived', value: this.stats.posts.archived, color: 'neutral' },
-          ],
-        },
-        {
-          label: 'Blogs',
-          value: this.stats.blogs.total,
-          icon: 'i-lucide-book-open',
-          to: '/admin/content/blogs',
-          breakdown: [
-            { label: 'Published', value: this.stats.blogs.published, color: 'success' },
-            { label: 'Draft', value: this.stats.blogs.draft, color: 'warning' },
-            { label: 'Archived', value: this.stats.blogs.archived, color: 'neutral' },
-          ],
-        },
-        {
-          label: 'Courses',
-          value: this.stats.courses.total,
-          icon: 'i-lucide-graduation-cap',
-          to: '/admin/content/courses',
-          breakdown: [
-            { label: 'Published', value: this.stats.courses.published, color: 'success' },
-            { label: 'Draft', value: this.stats.courses.draft, color: 'warning' },
-            { label: 'Archived', value: this.stats.courses.archived, color: 'neutral' },
-          ],
-        },
-        {
-          label: 'Comments',
-          value: this.stats.comments.total,
-          icon: 'i-lucide-message-circle',
-          to: '/admin/content/comments',
-          breakdown: [
-            { label: 'Approved', value: this.stats.comments.approved, color: 'success' },
-            { label: 'Pending', value: this.stats.comments.pending, color: 'warning' },
-            { label: 'Rejected', value: this.stats.comments.rejected, color: 'error' },
-          ],
-        },
-        {
-          label: 'Media',
-          value: this.stats.media.total,
-          icon: 'i-lucide-image',
-          to: '/admin/media',
-          breakdown: [
-            { label: 'Images', value: this.stats.media.images, color: 'info' },
-            { label: 'Videos', value: this.stats.media.videos, color: 'secondary' },
-            { label: 'Resources', value: this.stats.media.resources, color: 'warning' },
-          ],
-        },
-      ]
+const statCards = computed(() => {
+  if (!stats.value) return []
+  return [
+    {
+      label: 'Users',
+      value: stats.value.users,
+      icon: 'i-lucide-users',
+      to: '/admin/user-management/users',
     },
+    {
+      label: 'Posts',
+      value: stats.value.posts.total,
+      icon: 'i-lucide-file-text',
+      to: '/admin/content/posts',
+      breakdown: [
+        { label: 'Published', value: stats.value.posts.published, color: 'success' as BadgeColor },
+        { label: 'Draft', value: stats.value.posts.draft, color: 'warning' as BadgeColor },
+        { label: 'Archived', value: stats.value.posts.archived, color: 'neutral' as BadgeColor },
+      ],
+    },
+    {
+      label: 'Blogs',
+      value: stats.value.blogs.total,
+      icon: 'i-lucide-book-open',
+      to: '/admin/content/blogs',
+      breakdown: [
+        { label: 'Published', value: stats.value.blogs.published, color: 'success' as BadgeColor },
+        { label: 'Draft', value: stats.value.blogs.draft, color: 'warning' as BadgeColor },
+        { label: 'Archived', value: stats.value.blogs.archived, color: 'neutral' as BadgeColor },
+      ],
+    },
+    {
+      label: 'Courses',
+      value: stats.value.courses.total,
+      icon: 'i-lucide-graduation-cap',
+      to: '/admin/content/courses',
+      breakdown: [
+        { label: 'Published', value: stats.value.courses.published, color: 'success' as BadgeColor },
+        { label: 'Draft', value: stats.value.courses.draft, color: 'warning' as BadgeColor },
+        { label: 'Archived', value: stats.value.courses.archived, color: 'neutral' as BadgeColor },
+      ],
+    },
+    {
+      label: 'Comments',
+      value: stats.value.comments.total,
+      icon: 'i-lucide-message-circle',
+      to: '/admin/content/comments',
+      breakdown: [
+        { label: 'Approved', value: stats.value.comments.approved, color: 'success' as BadgeColor },
+        { label: 'Pending', value: stats.value.comments.pending, color: 'warning' as BadgeColor },
+        { label: 'Rejected', value: stats.value.comments.rejected, color: 'error' as BadgeColor },
+      ],
+    },
+    {
+      label: 'Media',
+      value: stats.value.media.total,
+      icon: 'i-lucide-image',
+      to: '/admin/media',
+      breakdown: [
+        { label: 'Images', value: stats.value.media.images, color: 'info' as BadgeColor },
+        { label: 'Videos', value: stats.value.media.videos, color: 'secondary' as BadgeColor },
+        { label: 'Resources', value: stats.value.media.resources, color: 'warning' as BadgeColor },
+      ],
+    },
+  ]
+})
 
-    baseColumns(): TableColumn<RecentItem>[] {
-      return [
+const baseColumns = computed<TableColumn<RecentItem>[]>(() => [
+  { accessorKey: 'id', header: 'ID', size: 60 },
+  { accessorKey: 'title', header: 'Title' },
+  { accessorKey: 'author', header: 'Author' },
+  { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'createdAt', header: 'Created' },
+])
+
+const recentSections = computed(() => {
+  if (!recent.value) return []
+  return [
+    {
+      key: 'posts',
+      label: 'Recent Posts',
+      icon: 'i-lucide-file-text',
+      data: recent.value.posts,
+      columns: baseColumns.value,
+      to: '/admin/content/posts',
+    },
+    {
+      key: 'blogs',
+      label: 'Recent Blogs',
+      icon: 'i-lucide-book-open',
+      data: recent.value.blogs,
+      columns: baseColumns.value,
+      to: '/admin/content/blogs',
+    },
+    {
+      key: 'courses',
+      label: 'Recent Courses',
+      icon: 'i-lucide-graduation-cap',
+      data: recent.value.courses,
+      columns: [
         { accessorKey: 'id', header: 'ID', size: 60 },
         { accessorKey: 'title', header: 'Title' },
+        { accessorKey: 'author', header: 'Instructor' },
+        { accessorKey: 'status', header: 'Status' },
+        { accessorKey: 'createdAt', header: 'Created' },
+      ] as TableColumn<RecentItem>[],
+      to: '/admin/content/courses',
+    },
+    {
+      key: 'comments',
+      label: 'Recent Comments',
+      icon: 'i-lucide-message-circle',
+      data: recent.value.comments,
+      columns: [
+        { accessorKey: 'id', header: 'ID', size: 60 },
+        { accessorKey: 'contentPreview', header: 'Content' },
         { accessorKey: 'author', header: 'Author' },
         { accessorKey: 'status', header: 'Status' },
         { accessorKey: 'createdAt', header: 'Created' },
-      ]
+      ] as TableColumn<RecentItem>[],
+      to: '/admin/content/comments',
     },
+  ].filter(s => s.data?.length)
+})
 
-    recentSections() {
-      if (!this.recent) return []
-      return [
-        {
-          key: 'posts',
-          label: 'Recent Posts',
-          icon: 'i-lucide-file-text',
-          data: this.recent.posts,
-          columns: this.baseColumns,
-          to: '/admin/content/posts',
-        },
-        {
-          key: 'blogs',
-          label: 'Recent Blogs',
-          icon: 'i-lucide-book-open',
-          data: this.recent.blogs,
-          columns: this.baseColumns,
-          to: '/admin/content/blogs',
-        },
-        {
-          key: 'courses',
-          label: 'Recent Courses',
-          icon: 'i-lucide-graduation-cap',
-          data: this.recent.courses,
-          columns: [
-            { accessorKey: 'id', header: 'ID', size: 60 },
-            { accessorKey: 'title', header: 'Title' },
-            { accessorKey: 'author', header: 'Instructor' },
-            { accessorKey: 'status', header: 'Status' },
-            { accessorKey: 'createdAt', header: 'Created' },
-          ],
-          to: '/admin/content/courses',
-        },
-        {
-          key: 'comments',
-          label: 'Recent Comments',
-          icon: 'i-lucide-message-circle',
-          data: this.recent.comments,
-          columns: [
-            { accessorKey: 'id', header: 'ID', size: 60 },
-            { accessorKey: 'contentPreview', header: 'Content' },
-            { accessorKey: 'author', header: 'Author' },
-            { accessorKey: 'status', header: 'Status' },
-            { accessorKey: 'createdAt', header: 'Created' },
-          ],
-          to: '/admin/content/comments',
-        },
-      ].filter(s => s.data?.length)
-    },
-  },
-
-  mounted() {
-    this.loadDashboard()
-  },
-
-  methods: {
-    async loadDashboard() {
-      try {
-        await this.fetchDashboard(this.recentLimit)
-      }
-      catch (err: any) {
-        this.toast.add({
-          title: 'Failed to load dashboard',
-          description: err.message || 'Please try again',
-          color: 'error',
-          icon: 'i-lucide-alert-circle',
-        })
-      }
-    },
-
-    formatDate(date: string | Date): string {
-      return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-    },
-
-    getStatusColor(status: string): BadgeColor {
-      const colorMap: Record<string, BadgeColor> = {
-        published: 'success',
-        draft: 'warning',
-        archived: 'neutral',
-        approved: 'success',
-        pending: 'warning',
-        rejected: 'error',
-        active: 'success',
-        inactive: 'neutral',
-        spam: 'error',
-      }
-      return colorMap[status] ?? 'neutral'
-    },
-  },
+async function loadDashboard() {
+  try {
+    await fetchDashboard(recentLimit.value)
+  }
+  catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Please try again'
+    toast.add({
+      title: 'Failed to load dashboard',
+      description: message,
+      color: 'error',
+      icon: 'i-lucide-alert-circle',
+    })
+  }
 }
+
+function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+function getStatusColor(status: string): BadgeColor {
+  const colorMap: Record<string, BadgeColor> = {
+    published: 'success',
+    draft: 'warning',
+    archived: 'neutral',
+    approved: 'success',
+    pending: 'warning',
+    rejected: 'error',
+    active: 'success',
+    inactive: 'neutral',
+    spam: 'error',
+  }
+  return colorMap[status] ?? 'neutral'
+}
+
+onMounted(() => loadDashboard())
 </script>
 
 <template>
