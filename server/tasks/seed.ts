@@ -1,5 +1,6 @@
 import { eq, sql } from 'drizzle-orm'
 import { seed } from 'drizzle-seed'
+import { hash } from '#server/utils/bcrypt'
 
 export default defineTask({
   meta: {
@@ -168,6 +169,14 @@ export default defineTask({
       const seededTags = await db.select().from(schema.tags)
       const seededResources = await db.select().from(schema.resources)
       const seededImages = await db.select().from(schema.images)
+
+      // Hash passwords with bcrypt so seeded users can log in
+      const testPassword = await hash('password123')
+      for (const user of seededUsers) {
+        await db.update(schema.users)
+          .set({ password: testPassword })
+          .where(eq(schema.users.id, user.id!))
+      }
 
       // Patch avatar URLs
       for (const [i, user] of seededUsers.entries()) {

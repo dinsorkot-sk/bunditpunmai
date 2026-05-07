@@ -1,12 +1,12 @@
 import { db } from '@nuxthub/db'
 import { users } from '#server/db/tables/users'
-import { verify, ACCESS_TOKEN_COOKIE } from '#server/utils/jwt'
+import { authenticate } from '#server/utils/auth'
 import { eq } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
     tags: ['auth'],
-    summary: 'Get current user',
+    summary: 'Get current user profile',
     security: [{ bearerAuth: [] }],
     responses: {
       200: { description: 'User profile' },
@@ -16,32 +16,8 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  // Get token from cookie or Authorization header
-  let token = getCookie(event, ACCESS_TOKEN_COOKIE)
-
-  if (!token) {
-    const authHeader = getHeader(event, 'Authorization')
-    if (authHeader?.startsWith('Bearer ')) {
-      token = authHeader.substring(7)
-    }
-  }
-
-  if (!token) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    })
-  }
-
-  // Verify token
-  const payload = await verify(token, 'access')
-
-  if (!payload) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Invalid or expired token',
-    })
-  }
+  // Authenticate and get JWT payload
+  const payload = await authenticate(event)
 
   // Get user from database
   const user = await db.select().from(users).where(eq(users.id, payload.userId)).get()

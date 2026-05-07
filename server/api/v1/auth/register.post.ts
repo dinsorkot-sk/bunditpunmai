@@ -2,13 +2,21 @@ import { db } from '@nuxthub/db'
 import { users } from '#server/db/tables/users'
 import { hash } from '#server/utils/bcrypt'
 import { sign, ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, COOKIE_OPTIONS } from '#server/utils/jwt'
+import { validate } from '#server/utils/validation'
+import { z } from 'zod'
 
-interface RegisterForm {
-  name: string
-  email: string
-  password: string
-  avatar?: string
-}
+const RegisterSchema = z.object({
+  name: z
+    .string({ message: 'Name is required' })
+    .min(2, 'Name must be at least 2 characters'),
+  email: z
+    .string({ message: 'Email is required' })
+    .email('Invalid email format'),
+  password: z
+    .string({ message: 'Password is required' })
+    .min(8, 'Password must be at least 8 characters'),
+  avatar: z.string().optional().default(''),
+})
 
 defineRouteMeta({
   openAPI: {
@@ -40,17 +48,18 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event) as RegisterForm
+  const body = await readBody(event)
+  const { name, email, password, avatar } = validate(RegisterSchema, body)
 
   // Hash password
-  const hashedPassword = await hash(body.password)
+  const hashedPassword = await hash(password)
 
   try {
     const result = await db.insert(users).values({
-      name: body.name,
-      email: body.email,
+      name,
+      email,
       password: hashedPassword,
-      avatar: body.avatar || '',
+      avatar,
       createdAt: new Date(),
     }).returning()
 

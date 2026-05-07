@@ -2,12 +2,18 @@ import { db } from '@nuxthub/db'
 import { users } from '#server/db/tables/users'
 import { compare } from '#server/utils/bcrypt'
 import { sign, ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, COOKIE_OPTIONS } from '#server/utils/jwt'
+import { validate } from '#server/utils/validation'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
-interface LoginForm {
-  email: string
-  password: string
-}
+const LoginSchema = z.object({
+  email: z
+    .string({ message: 'Email is required' })
+    .email('Invalid email format'),
+  password: z
+    .string({ message: 'Password is required' })
+    .min(8, 'Password must be at least 8 characters'),
+})
 
 defineRouteMeta({
   openAPI: {
@@ -37,10 +43,11 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event) as LoginForm
+  const body = await readBody(event)
+  const { email, password } = validate(LoginSchema, body)
 
   // Find user by email
-  const user = await db.select().from(users).where(eq(users.email, body.email)).get()
+  const user = await db.select().from(users).where(eq(users.email, email)).get()
 
   if (!user) {
     throw createError({
@@ -50,7 +57,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Verify password
-  const isValidPassword = await compare(body.password, user.password)
+  const isValidPassword = await compare(password, user.password)
 
   if (!isValidPassword) {
     throw createError({

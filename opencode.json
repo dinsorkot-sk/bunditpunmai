@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
   "agent": {
     "build": {
       "mode": "primary",
@@ -13,38 +12,59 @@
           "git log*": "allow",
           "npm run*": "allow",
           "yarn*": "allow"
-        }
+        },
+        "grep": "allow",
+        "glob": "allow",
+        "lsp": "allow",
+        "skill": "allow",
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "question": "allow"
       },
       "color": "#4ade80"
     },
-
     "plan": {
       "mode": "primary",
       "temperature": 0.2,
       "permission": {
         "edit": "deny",
-        "bash": "deny"
+        "bash": "deny",
+        "grep": "allow",
+        "glob": "allow",
+        "lsp": "allow",
+        "skill": "allow",
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "question": "allow"
       },
       "color": "#60a5fa"
     },
-
-    "orchestrator" :{
-        "mode": "primary",
-        "temperature": 0.2,
-        "permission": {
-          "edit": "allow",
-          "bash": {
-            "*": "ask",
-            "git status": "allow",
-            "git diff*": "allow",
-            "git log*": "allow",
-            "npm run*": "allow",
-            "yarn*": "allow"
-            }
+    "orchestrator": {
+      "mode": "primary",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "npm run*": "allow",
+          "yarn*": "allow"
         },
-        "color": "#60a5fa"
+        "grep": "allow",
+        "glob": "allow",
+        "lsp": "allow",
+        "skill": "allow",
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "question": "allow"
+      },
+      "color": "#60a5fa"
     },
-
     "analyst": {
       "description": "Analyzes requirements and creates implementation plans. Invoke first for any new feature, refactor, or ambiguous request.",
       "mode": "subagent",
@@ -61,7 +81,6 @@
       },
       "color": "#a78bfa"
     },
-
     "backend": {
       "description": "Implements backend logic — APIs, services, database queries, and server-side code.",
       "mode": "subagent",
@@ -81,7 +100,6 @@
       },
       "color": "#f59e0b"
     },
-
     "frontend": {
       "description": "Implements UI components, pages, styles, and client-side logic.",
       "mode": "subagent",
@@ -100,7 +118,6 @@
       },
       "color": "#fb7185"
     },
-
     "reviewer": {
       "description": "Reviews code for correctness, security, performance, and maintainability. Read-only.",
       "mode": "subagent",
@@ -118,7 +135,6 @@
       },
       "color": "#22d3ee"
     },
-
     "tester": {
       "description": "Writes and runs tests — unit, integration, and regression. Invoke after implementation and review.",
       "mode": "subagent",
@@ -139,7 +155,6 @@
       },
       "color": "#86efac"
     },
-
     "debugger": {
       "description": "Investigates bugs and performs root cause analysis. Read-only — produces a diagnosis for the backend agent to fix.",
       "mode": "subagent",
@@ -157,7 +172,6 @@
       },
       "color": "#f97316"
     },
-
     "refactor": {
       "description": "Cleans up and restructures existing code without changing behavior. Use for technical debt and code quality improvements.",
       "mode": "subagent",
@@ -177,7 +191,6 @@
       },
       "color": "#c084fc"
     },
-
     "devops": {
       "description": "Handles infrastructure, CI/CD, Docker, Kubernetes, and deployments. High-risk — all destructive ops require confirmation.",
       "mode": "subagent",
