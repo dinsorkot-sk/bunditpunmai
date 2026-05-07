@@ -47,9 +47,14 @@ export default defineEventHandler(async (event) => {
   })
 
   const uploadedRecord = uploaded as unknown as Record<string, unknown>
-  const blobUrl = Array.isArray(uploaded)
+  let blobUrl = Array.isArray(uploaded)
     ? (uploaded[0] as unknown as Record<string, unknown>)?.url as string | undefined
     : uploadedRecord.url as string | undefined
+
+  // Normalize URL to /files/ prefix
+  if (blobUrl?.startsWith('/api/blob/')) {
+    blobUrl = blobUrl.replace('/api/blob/', '/files/')
+  }
 
   if (!blobUrl) {
     throw createError({

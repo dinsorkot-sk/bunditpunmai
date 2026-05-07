@@ -77,9 +77,15 @@ export default defineEventHandler(async (event) => {
         },
       })
 
-      const uploadedRecord = uploaded as unknown as Record<string, unknown>
-      if (uploadedRecord.url) {
-        updateData.url = uploadedRecord.url as string
+      let blobUrl = (uploaded as unknown as Record<string, unknown>)?.url as string | undefined
+      
+      // Normalize URL to /files/ prefix
+      if (blobUrl?.startsWith('/api/blob/')) {
+        blobUrl = blobUrl.replace('/api/blob/', '/files/')
+      }
+      
+      if (blobUrl) {
+        updateData.url = blobUrl
       }
     } catch {
       // No new file provided, keep existing URL

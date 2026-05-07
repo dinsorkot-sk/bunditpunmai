@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
   
   // Construct absolute URL
   const pathname = (blobResult as any).pathname
-  const blobUrl = blobResult.url || `/api/blob/${pathname.startsWith('/') ? pathname.slice(1) : pathname}`
+  const blobUrl = blobResult.url || `/files/${pathname.startsWith('/') ? pathname.slice(1) : pathname}`
 
   if (!blobUrl) {
     throw createError({

@@ -17,10 +17,10 @@ watch(file, async (newFile) => {
     const formData = new FormData()
     formData.append('file', newFile)
 
-    const response = await $fetch('/api/v1/videos', {
+    const response = await $fetch<{ url: string }>('/api/v1/videos', {
       method: 'POST',
       body: formData
-    }) as { url: string }
+    })
 
     const pos = props.getPos()
     if (typeof pos === 'number') {
