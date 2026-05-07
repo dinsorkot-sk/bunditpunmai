@@ -1,0 +1,47 @@
+# OpenCode Agent Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit the values below to match your environment.
+# The orchestrator reads this file on every session start.
+
+project:
+  name: bunditpunmai          # Used in log file naming
+  root: D:\project\bunditpunmai
+
+# ─── Obsidian Logging ────────────────────────────────────────────────────────
+obsidian:
+  vault_path: D:\vault\dev-logs    # ← Change this to your actual vault path
+  log_folder: agent-logs           # Subfolder inside vault
+  # Log files will be created at:
+  #   {vault_path}/{log_folder}/{YYYY-MM-DD}/{project.name}-session.md
+
+# ─── Workflow Behavior ───────────────────────────────────────────────────────
+workflow:
+  mode: hybrid                     # parallel delegate + sequential review/log
+  confirm_each_step: true          # Ask user [Y/S/E/X] before every step
+  max_parallel_agents: 4           # Cap simultaneous delegations
+  auto_log: true                   # Always write Obsidian log after each step
+
+# ─── Risk Thresholds ─────────────────────────────────────────────────────────
+risk:
+  # Operations matching these patterns are marked risk: high
+  high_risk_patterns:
+    - "DELETE"
+    - "DROP TABLE"
+    - "rm -rf"
+    - "deploy.*production"
+    - "overwrite"
+    - "truncate"
+  require_double_confirm: true     # High-risk steps need two [Y] confirmations
+
+# ─── Agent Specs Location ────────────────────────────────────────────────────
+agents:
+  spec_dir: .opencode/agents       # Where {role}.md files live
+  routing_file: .opencode/agents/routing.yaml
+
+# ─── Log Format ──────────────────────────────────────────────────────────────
+log:
+  date_format: "YYYY-MM-DD"
+  time_format: "HH:mm"
+  include_todo: true
+  include_output_summary: true
+  include_issues: true

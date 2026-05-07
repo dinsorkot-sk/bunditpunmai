@@ -1,0 +1,135 @@
+# Agent Routing Rules
+# ─────────────────────────────────────────────────────────────────────────────
+# Orchestrator reads this to decide which agents handle which request types.
+# Rules are matched top-to-bottom; first match wins.
+# Each rule defines: trigger keywords/intent + the resulting step plan.
+
+routes:
+
+  # ── New Feature ─────────────────────────────────────────────────────────────
+  - id: new_feature
+    match:
+      intent: [implement, build, create, add feature, new endpoint, new page]
+    steps:
+      - id: S1
+        agent: analyst
+        name: Requirement Analysis
+        depends_on: []
+        risk: low
+      - id: S2
+        agent: backend
+        name: Backend Implementation
+        depends_on: [S1]
+        risk: medium
+      - id: S3
+        agent: frontend
+        name: Frontend Implementation
+        depends_on: [S1]
+        risk: medium
+        parallel_with: [S2]       # S2 and S3 run in parallel
+      - id: S4
+        agent: reviewer
+        name: Code Review
+        depends_on: [S2, S3]
+        risk: low
+      - id: S5
+        agent: tester
+        name: Test Validation
+        depends_on: [S4]
+        risk: low
+
+  # ── Bug Fix ─────────────────────────────────────────────────────────────────
+  - id: bug_fix
+    match:
+      intent: [fix, bug, error, broken, not working, crash, exception]
+    steps:
+      - id: S1
+        agent: debugger
+        name: Root Cause Analysis
+        depends_on: []
+        risk: low
+      - id: S2
+        agent: backend
+        name: Apply Fix
+        depends_on: [S1]
+        risk: medium
+      - id: S3
+        agent: reviewer
+        name: Review Fix
+        depends_on: [S2]
+        risk: low
+      - id: S4
+        agent: tester
+        name: Regression Check
+        depends_on: [S3]
+        risk: low
+
+  # ── Refactor ─────────────────────────────────────────────────────────────────
+  - id: refactor
+    match:
+      intent: [refactor, clean up, restructure, simplify, technical debt]
+    steps:
+      - id: S1
+        agent: analyst
+        name: Scope Analysis
+        depends_on: []
+        risk: low
+      - id: S2
+        agent: refactor
+        name: Refactoring
+        depends_on: [S1]
+        risk: medium
+      - id: S3
+        agent: reviewer
+        name: Review Refactored Code
+        depends_on: [S2]
+        risk: low
+      - id: S4
+        agent: tester
+        name: Smoke Tests
+        depends_on: [S3]
+        risk: low
+
+  # ── DevOps / Deploy ──────────────────────────────────────────────────────────
+  - id: devops
+    match:
+      intent: [deploy, ci/cd, pipeline, docker, infra, environment, kubernetes]
+    steps:
+      - id: S1
+        agent: analyst
+        name: Deployment Plan Analysis
+        depends_on: []
+        risk: low
+      - id: S2
+        agent: devops
+        name: Infrastructure Setup
+        depends_on: [S1]
+        risk: high
+      - id: S3
+        agent: reviewer
+        name: Config Review
+        depends_on: [S2]
+        risk: low
+
+  # ── Research / Explain ───────────────────────────────────────────────────────
+  - id: research
+    match:
+      intent: [explain, research, how does, what is, analyze, compare]
+    steps:
+      - id: S1
+        agent: analyst
+        name: Research & Explanation
+        depends_on: []
+        risk: low
+
+  # ── Ambiguous (catch-all) ────────────────────────────────────────────────────
+  - id: ambiguous
+    match:
+      intent: ["*"]
+    steps:
+      - id: S1
+        agent: analyst
+        name: Intent Clarification
+        depends_on: []
+        risk: low
+        note: "Analyst will clarify intent and orchestrator will re-route"
