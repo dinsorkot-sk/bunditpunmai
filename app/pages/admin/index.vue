@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { useDashboard } from '~/composables/v1/useDashboard'
 
 type BadgeColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 
