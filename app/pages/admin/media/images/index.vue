@@ -76,7 +76,7 @@ async function handleSubmit() {
     }
     else {
       if (!selectedFile.value) {
-        alert('Please select an image file')
+        toast.add({ title: 'Please select an image file', color: 'error' })
         submitting.value = false
         return
       }
@@ -103,8 +103,8 @@ async function handleDelete(image: { id: number }) {
   if (confirm('Delete this image?')) {
     try {
       await deleteImage(image.id)
-      toast.add({ title: 'Image deleted', color: 'success' })
       fetchImages({ limit: limit.value, offset: offset.value })
+      toast.add({ title: 'Image deleted', color: 'success' })
     }
     catch (error: unknown) {
       console.error('Failed to delete image:', error)

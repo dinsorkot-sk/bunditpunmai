@@ -76,7 +76,7 @@ async function handleSubmit() {
     }
     else {
       if (!selectedFile.value) {
-        alert('Please select a video file')
+        toast.add({ title: 'Please select a video file', color: 'error' })
         submitting.value = false
         return
       }
@@ -103,8 +103,8 @@ async function handleDelete(video: { id: number }) {
   if (confirm('Delete this video?')) {
     try {
       await deleteVideo(video.id)
-      toast.add({ title: 'Video deleted', color: 'success' })
       fetchVideos({ limit: limit.value, offset: offset.value })
+      toast.add({ title: 'Video deleted', color: 'success' })
     }
     catch (error: unknown) {
       console.error('Failed to delete video:', error)

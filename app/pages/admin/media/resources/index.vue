@@ -82,7 +82,7 @@ async function handleSubmit() {
     }
     else {
       if (!selectedFile.value) {
-        alert('Please select a file')
+        toast.add({ title: 'Please select a resource file', color: 'error' })
         submitting.value = false
         return
       }
@@ -110,8 +110,8 @@ async function handleDelete(resource: { id: number; title: string }) {
   if (confirm(`Delete resource "${resource.title}"?`)) {
     try {
       await deleteResource(resource.id)
-      toast.add({ title: 'Resource deleted', color: 'success' })
       fetchResources({ limit: limit.value, offset: offset.value })
+      toast.add({ title: 'Resource deleted', color: 'success' })
     }
     catch (error: unknown) {
       console.error('Failed to delete resource:', error)
