@@ -9,7 +9,7 @@ project:
 
 # ─── Obsidian Logging ────────────────────────────────────────────────────────
 obsidian:
-  vault_path: D:\vault\dev-logs    # ← Change this to your actual vault path
+  vault_path: D:\note\bunditpunmai     # ← Change this to your actual vault path
   log_folder: agent-logs           # Subfolder inside vault
   # Log files will be created at:
   #   {vault_path}/{log_folder}/{YYYY-MM-DD}/{project.name}-session.md

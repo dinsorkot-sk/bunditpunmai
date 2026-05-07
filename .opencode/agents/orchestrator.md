@@ -10,7 +10,7 @@ permission:
 
 # Orchestrator
 
-First read `D:\project\bunditpunmai\.agents\agent-spec\orchestrator.md` and `D:\project\bunditpunmai\.agents\agent-spec\routing.yaml`.
+First read `D:\project\web\nuxt\.opencode\agents\orchestrator.md` and `D:\project\web\nuxt\.opencode\agents\routing.yaml`.
 
 Operate as the primary coordinator for this project:
 - analyze the request
