@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EditorCustomHandlers, EditorToolbarItem, EditorSuggestionMenuItem, EditorMentionMenuItem, EditorEmojiMenuItem, DropdownMenuItem } from '@nuxt/ui'
 import type { Editor, JSONContent } from '@tiptap/vue-3'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { upperFirst } from 'scule'
 import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
 import { TextAlign } from '@tiptap/extension-text-align'
@@ -9,50 +9,41 @@ import { CodeBlockShiki } from 'tiptap-extension-code-block-shiki'
 import { ImageUpload, useEditorCompletion } from '~/composables/editor/useEditor'
 import EditorLinkPopover from './EditorLinkPopover.vue'
 
+// V-model support: Props and Emits
+const props = withDefaults(defineProps<{
+  modelValue?: string
+}>(), {
+  modelValue: ''
+})
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
+
 const editorRef = ref<{ editor: Editor | undefined }>()
 
-const value = ref(`# Building Modern Interfaces with Nuxt UI
+// Internal value ref synced with v-model prop
+const value = ref(props.modelValue)
+let isExternalUpdate = false
 
-Welcome to the **Nuxt UI Editor** — a powerful rich text editing experience built on [TipTap](https://tiptap.dev). This editor combines *flexibility* with ease of use, making content creation a breeze.
+// Watch for external modelValue changes (e.g., opening edit modal with existing content)
+watch(() => props.modelValue, (newVal) => {
+  if (newVal !== value.value) {
+    isExternalUpdate = true
+    value.value = newVal
+    // Reset flag after value watch runs to prevent blocking internal updates
+    nextTick(() => {
+      isExternalUpdate = false
+    })
+  }
+})
 
-![Placeholder](/placeholder.jpeg)
-
-## Rich Formatting Options
-
-The editor supports all common text formatting including **bold**, *italic*, <u>underline</u>, ~~strikethrough~~, and \`inline code\`. You can also combine them for **_bold and italic_** text.
-
-### Interactive Features
-
-Try out these powerful capabilities:
-
-- **Bubble Menu** — Select any text to see formatting options appear
-- **Slash Commands** — Type \`/\` for quick access to blocks and formatting
-- **Mentions** — Use \`@\` to tag people or entities
-- **Emoji Picker** — Type \`:\` followed by an emoji name like :smile:
-- **Drag & Drop** — Hover over any block to see the drag handle
-
-> **Pro tip:** You can use keyboard shortcuts like Cmd/Ctrl + B for bold, Cmd/Ctrl + I for italic, and more!
-
-### Advanced Capabilities
-
-1. **Custom Extensions** — Add your own TipTap extensions seamlessly
-2. **Multiple Content Types** — Support for JSON, HTML, and Markdown
-3. **Customizable Toolbars** — Fixed, bubble, and floating layouts
-4. **Theme Integration** — Fully styled with Nuxt UI theme system
-
-#### Code Blocks
-
-Perfect for technical documentation:
-
-\`\`\`vue
-<template>
-  <UEditor v-model="value" content-type="markdown" />
-</template>
-\`\`\`
-
----
-
-Whether you're building a blog, documentation site, or content management system, the Nuxt UI Editor provides everything you need for a professional editing experience. Visit [ui.nuxt.com](https://ui.nuxt.com) to explore more components.`)
+// Watch internal value changes and emit to parent (only for internal editor changes)
+watch(value, (newVal) => {
+  if (!isExternalUpdate) {
+    emit('update:modelValue', newVal)
+  }
+})
 
 const { extension: completionExtension, handlers: aiHandlers, isLoading: aiLoading } = useEditorCompletion(editorRef)
 
