@@ -55,6 +55,7 @@ const linkCourses = ref<ButtonProps[]>([
   {
     label: 'ทั้งหมด',
     trailingIcon: 'i-lucide-chevron-right',
+    to: '/courses',
     target: '_blank'
   }
 ])

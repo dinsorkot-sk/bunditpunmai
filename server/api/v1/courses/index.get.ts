@@ -1,5 +1,6 @@
 import { db } from '@nuxthub/db'
 import { courses } from '#server/db/tables/courses'
+import { desc } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
     status: courses.status,
     instructorId: courses.instructorId,
     createdAt: courses.createdAt,
-  }).from(courses).limit(limit).offset(offset)
+  }).from(courses).orderBy(desc(courses.createdAt)).limit(limit).offset(offset)
 
   return result
 })
