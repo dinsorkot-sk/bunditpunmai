@@ -6,7 +6,7 @@ import { upperFirst } from 'scule'
 import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { CodeBlockShiki } from 'tiptap-extension-code-block-shiki'
-import { ImageUpload, useEditorCompletion } from '~/composables/editor/useEditor'
+import { ImageUpload, VideoUpload, Video, useEditorCompletion } from '~/composables/editor/useEditor'
 import EditorLinkPopover from './EditorLinkPopover.vue'
 
 // V-model support: Props and Emits
@@ -52,6 +52,12 @@ const customHandlers = {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'imageUpload' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'imageUpload' }),
     isActive: (editor: Editor) => editor.isActive('imageUpload'),
+    isDisabled: undefined
+  },
+  videoUpload: {
+    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'videoUpload' }),
+    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'videoUpload' }),
+    isActive: (editor: Editor) => editor.isActive('videoUpload'),
     isDisabled: undefined
   },
   ...aiHandlers
@@ -147,6 +153,10 @@ const fixedToolbarItems = [[{
   kind: 'imageUpload',
   icon: 'i-lucide-image',
   tooltip: { text: 'Image' }
+}, {
+  kind: 'videoUpload',
+  icon: 'i-lucide-video',
+  tooltip: { text: 'Video' }
 }], [{
   icon: 'i-lucide-align-justify',
   tooltip: { text: 'Text Align' },
@@ -318,6 +328,10 @@ const bubbleToolbarItems = computed(() => [[{
   kind: 'imageUpload',
   icon: 'i-lucide-image',
   tooltip: { text: 'Image' }
+}, {
+  kind: 'videoUpload',
+  icon: 'i-lucide-video',
+  tooltip: { text: 'Video' }
 }], [{
   icon: 'i-lucide-align-justify',
   tooltip: { text: 'Text Align' },
@@ -347,8 +361,13 @@ const bubbleToolbarItems = computed(() => [[{
   }]
 }]] satisfies EditorToolbarItem<typeof customHandlers>[][])
 
-const imageToolbarItems = (editor: Editor): EditorToolbarItem[][] => {
+
+const mediaToolbarItems = (editor: Editor): EditorToolbarItem[][] => {
   const node = editor.state.doc.nodeAt(editor.state.selection.from)
+  const isImage = node?.type.name === 'image'
+  const isVideo = node?.type.name === 'video'
+
+  if (!isImage && !isVideo) return []
 
   return [[{
     icon: 'i-lucide-download',
@@ -365,8 +384,9 @@ const imageToolbarItems = (editor: Editor): EditorToolbarItem[][] => {
       const pos = selection.from
       const node = state.doc.nodeAt(pos)
 
-      if (node && node.type.name === 'image') {
-        editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).insertContentAt(pos, { type: 'imageUpload' }).run()
+      if (node && (node.type.name === 'image' || node.type.name === 'video')) {
+        const uploadType = node.type.name === 'image' ? 'imageUpload' : 'videoUpload'
+        editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).insertContentAt(pos, { type: uploadType }).run()
       }
     }
   }], [{
@@ -379,7 +399,7 @@ const imageToolbarItems = (editor: Editor): EditorToolbarItem[][] => {
       const pos = selection.from
       const node = state.doc.nodeAt(pos)
 
-      if (node && node.type.name === 'image') {
+      if (node && (node.type.name === 'image' || node.type.name === 'video')) {
         editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run()
       }
     }
@@ -523,6 +543,10 @@ const suggestionItems = [[{
   label: 'Image',
   icon: 'i-lucide-image'
 }, {
+  kind: 'videoUpload',
+  label: 'Video',
+  icon: 'i-lucide-video'
+}, {
   kind: 'horizontalRule',
   label: 'Horizontal Rule',
   icon: 'i-lucide-separator-horizontal'
@@ -560,6 +584,8 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(emoji => !emoji.na
       Emoji,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       ImageUpload,
+      VideoUpload,
+      Video,
       CodeBlockShiki.configure({
         defaultTheme: 'material-theme',
         themes: {
@@ -578,7 +604,7 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(emoji => !emoji.na
       </UEditorToolbar>
 
       <UEditorToolbar :editor="editor" :items="bubbleToolbarItems" layout="bubble" :should-show="({ editor, view, state }) => {
-        if (editor.isActive('imageUpload') || editor.isActive('image')) {
+        if (editor.isActive('imageUpload') || editor.isActive('image') || editor.isActive('videoUpload') || editor.isActive('video')) {
           return false
         }
         const { selection } = state
@@ -589,8 +615,8 @@ const emojiItems: EditorEmojiMenuItem[] = gitHubEmojis.filter(emoji => !emoji.na
         </template>
       </UEditorToolbar>
 
-      <UEditorToolbar :editor="editor" :items="imageToolbarItems(editor)" layout="bubble" :should-show="({ editor, view }) => {
-        return editor.isActive('image') && view.hasFocus()
+      <UEditorToolbar :editor="editor" :items="mediaToolbarItems(editor)" layout="bubble" :should-show="({ editor, view }) => {
+        return (editor.isActive('image') || editor.isActive('video')) && view.hasFocus()
       }" />
 
       <UEditorSuggestionMenu :editor="editor" :items="suggestionItems" />

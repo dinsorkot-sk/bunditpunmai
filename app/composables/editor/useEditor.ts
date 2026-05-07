@@ -6,6 +6,7 @@ import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import type { Editor } from '@tiptap/vue-3'
 import { useCompletion } from '@ai-sdk/vue'
 import ImageUploadNodeComponent from '~/components/editor/image/upload/Node.vue'
+import VideoUploadNodeComponent from '~/components/editor/video/upload/Node.vue'
 
 // ==================== Completion Extension ====================
 
@@ -113,6 +114,76 @@ export const ImageUpload = Node.create({
   addCommands() {
     return {
       insertImageUpload: () => ({ commands }: CommandProps) => {
+        return commands.insertContent({ type: this.name })
+      }
+    }
+  }
+})
+
+// ==================== VideoUpload Extension ====================
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    videoUpload: {
+      insertVideoUpload: () => ReturnType
+    }
+    video: {
+      setVideo: (options: { src: string }) => ReturnType
+    }
+  }
+}
+
+export const Video = Node.create({
+  name: 'video',
+  group: 'block',
+  atom: true,
+  draggable: true,
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+    }
+  },
+  parseHTML() {
+    return [{
+      tag: 'video',
+    }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['video', mergeAttributes(HTMLAttributes, { controls: true })]
+  },
+  addCommands() {
+    return {
+      setVideo: (options) => ({ commands }) => {
+        return commands.insertContent({ type: this.name, attrs: options })
+      },
+    }
+  },
+})
+
+export const VideoUpload = Node.create({
+  name: 'videoUpload',
+  group: 'block',
+  atom: true,
+  draggable: true,
+  addAttributes() {
+    return {}
+  },
+  parseHTML() {
+    return [{
+      tag: 'div[data-type="video-upload"]'
+    }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'video-upload' })]
+  },
+  addNodeView(): NodeViewRenderer {
+    return VueNodeViewRenderer(VideoUploadNodeComponent)
+  },
+  addCommands() {
+    return {
+      insertVideoUpload: () => ({ commands }: CommandProps) => {
         return commands.insertContent({ type: this.name })
       }
     }
