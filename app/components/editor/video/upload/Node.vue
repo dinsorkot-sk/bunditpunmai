@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import type { NodeViewProps } from '@tiptap/vue-3'
 import { NodeViewWrapper } from '@tiptap/vue-3'
 
@@ -12,33 +13,29 @@ watch(file, async (newFile) => {
 
   loading.value = true
 
-  const reader = new FileReader()
-  reader.onload = async (e) => {
-    const dataUrl = e.target?.result as string
-    if (!dataUrl) {
-      loading.value = false
-      return
-    }
+  try {
+    const formData = new FormData()
+    formData.append('file', newFile)
 
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const response = await $fetch('/api/v1/videos', {
+      method: 'POST',
+      body: formData
+    }) as { url: string }
 
     const pos = props.getPos()
-    if (typeof pos !== 'number') {
-      loading.value = false
-      return
+    if (typeof pos === 'number') {
+      props.editor
+        .chain()
+        .focus()
+        .deleteRange({ from: pos, to: pos + 1 })
+        .setVideo({ src: response.url })
+        .run()
     }
-
-    props.editor
-      .chain()
-      .focus()
-      .deleteRange({ from: pos, to: pos + 1 })
-      .setVideo({ src: dataUrl })
-      .run()
-
+  } catch (error) {
+    console.error('Video upload failed:', error)
+  } finally {
     loading.value = false
   }
-  reader.readAsDataURL(newFile)
 })
 </script>
 
@@ -48,7 +45,7 @@ watch(file, async (newFile) => {
       v-model="file"
       accept="video/*"
       label="Upload a video"
-      description="MP4, WebM or Ogg (max. 50MB)"
+      description="MP4, WebM or Ogg (max. 64MB)"
       :preview="false"
       class="min-h-48"
     >

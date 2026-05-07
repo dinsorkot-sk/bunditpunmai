@@ -4,7 +4,6 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "anthropic/claude-sonnet-4-20250514",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -27,6 +26,23 @@
         "bash": "deny"
       },
       "color": "#60a5fa"
+    },
+
+    "orchestrator" :{
+        "mode": "primary",
+        "temperature": 0.2,
+        "permission": {
+          "edit": "allow",
+          "bash": {
+            "*": "ask",
+            "git status": "allow",
+            "git diff*": "allow",
+            "git log*": "allow",
+            "npm run*": "allow",
+            "yarn*": "allow"
+            }
+        },
+        "color": "#60a5fa"
     },
 
     "analyst": {

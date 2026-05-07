@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { videos } from '#server/db/tables/videos'
 import { blob } from 'hub:blob'
+import { readMultipartFormData } from 'h3'
 import type { NewVideo } from '#shared/types/entities/video'
 
 defineRouteMeta({
@@ -30,39 +31,42 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  // Handle file upload via blob storage
-  const uploaded = await blob.handleUpload(event, {
-    formKey: 'file',
-    multiple: false,
-    ensure: {
-      maxSize: '64MB',
-      types: ['video'],
-    },
-    put: {
-      addRandomSuffix: true,
-      prefix: 'videos',
-    },
-  })
+  const formData = await readMultipartFormData(event)
+  const filePart = formData?.find(part => part.name === 'file')
+  const altTextPart = formData?.find(part => part.name === 'altText')
 
-  const body = await readBody(event) as NewVideo
-  const uploadedRecord = uploaded as unknown as Record<string, unknown>
-  const blobUrl = Array.isArray(uploaded)
-    ? (uploaded[0] as unknown as Record<string, unknown>)?.url as string | undefined
-    : uploadedRecord.url as string | undefined
-
-  if (!blobUrl) {
+  if (!filePart || !filePart.type?.startsWith('video/')) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Failed to get URL from uploaded file',
+      statusMessage: 'Invalid or missing file',
     })
   }
 
-  const result = await db.insert(videos).values({
+  // Upload file to blob storage
+  const blobResult = await blob.put(filePart.filename || 'video.mp4', filePart.data, {
+    addRandomSuffix: true,
+    prefix: 'videos',
+  })
+  
+  // Construct absolute URL
+  const pathname = (blobResult as any).pathname
+  const blobUrl = blobResult.url || `/api/blob/${pathname.startsWith('/') ? pathname.slice(1) : pathname}`
+
+  if (!blobUrl) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to upload file to storage',
+    })
+  }
+
+  const altText = altTextPart?.data.toString() || ''
+
+  const insertResult = await db.insert(videos).values({
     url: blobUrl,
-    altText: body.altText || '',
+    altText,
     createdAt: new Date(),
   }).returning()
 
   setResponseStatus(event, 201)
-  return result[0]
+  return insertResult[0]
 })
