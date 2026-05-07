@@ -6,8 +6,7 @@ import { upperFirst } from 'scule'
 import { Emoji, gitHubEmojis } from '@tiptap/extension-emoji'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { CodeBlockShiki } from 'tiptap-extension-code-block-shiki'
-import { ImageUpload } from './EditorImageUploadExtension'
-import { useEditorCompletion } from './EditorUseCompletion'
+import { ImageUpload, useEditorCompletion } from '~/composables/editor/useEditor'
 import EditorLinkPopover from './EditorLinkPopover.vue'
 
 const editorRef = ref<{ editor: Editor | undefined }>()
