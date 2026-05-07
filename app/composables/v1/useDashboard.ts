@@ -1,4 +1,4 @@
-import type { DashboardStats, DashboardRecent } from '~/shared/types/dashboard'
+import type { DashboardStats, DashboardRecent } from '#shared/types/dashboard'
 
 interface DashboardData {
   stats: DashboardStats

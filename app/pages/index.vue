@@ -1,41 +1,21 @@
-<script lang="ts">
-export default {
-    setup() {
-        return {
-
-        }
-    },
-    data() {
-        return {
-
-        }
-    },
-    computed: {
-
-    },
-    watch: {
-
-    },
-    mounted() {
-
-    },
-    methods: {
-
-    }
-}
+<script setup lang="ts">
+definePageMeta({
+  layout: 'admin',
+})
 </script>
-<template>
-    <UDashboardPanel resizable>
-        <template #header>
-            <UDashboardNavbar title="Index">
-                <template #leading>
-                    <UDashboardSidebarCollapse />
-                </template>
-            </UDashboardNavbar>
-        </template>
 
-        <template #body>
-            <Placeholder class="h-full" />
+<template>
+  <UDashboardPanel resizable>
+    <template #header>
+      <UDashboardNavbar title="Index">
+        <template #leading>
+          <UDashboardSidebarCollapse />
         </template>
-    </UDashboardPanel>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <Placeholder class="h-full" />
+    </template>
+  </UDashboardPanel>
 </template>
