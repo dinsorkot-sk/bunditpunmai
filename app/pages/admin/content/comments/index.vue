@@ -178,7 +178,7 @@ onMounted(() => {
         <UButton label="Next" :disabled="total < limit" @click="offset += limit" />
       </div>
 
-      <UModal v-model:open="showCreateModal" :title="modalTitle">
+      <UModal v-model:open="showCreateModal" :title="modalTitle" fullscreen>
         <template #body>
           <UForm :state="form" class="space-y-4 w-full" @submit="handleSubmit">
             <UFormField label="Content" required>
