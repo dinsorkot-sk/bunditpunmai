@@ -103,25 +103,14 @@ const contactInfo: ContactInfo[] = [
 </script>
 
 <template>
-  <!-- ════════════════════════════════════════════════════════════
-         HERO SECTION (full-width)
-       ════════════════════════════════════════════════════════════ -->
-  <section class="bg-[#0B2C6B] text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight">
-        ติดต่อเรา
-      </h1>
-      <p class="mt-4 text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
-        หากมีคำถามเกี่ยวกับโครงการ BunditPunMai หรือต้องการข้อมูลเพิ่มเติมเกี่ยวกับกิจกรรม
-        หลักสูตร และการพัฒนาทักษะดิจิทัล สามารถติดต่อทีมงานของเราได้ตลอดเวลา
-      </p>
-    </div>
-  </section>
-
-  <!-- ════════════════════════════════════════════════════════════
-       MAIN CONTENT (constrained)
-     ════════════════════════════════════════════════════════════ -->
   <UPage>
+    <UPageSection
+      title=" ติดต่อเรา"
+      description="
+        หากมีคำถามเกี่ยวกับโครงการ BunditPunMai หรือต้องการข้อมูลเพิ่มเติมเกี่ยวกับกิจกรรม
+        หลักสูตร และการพัฒนาทักษะดิจิทัล สามารถติดต่อทีมงานของเราได้ตลอดเวลา"
+      orientation="horizontal"
+    />
     <UPageSection>
       <div class="grid lg:grid-cols-2 gap-8">
         <!-- ───── LEFT COLUMN: Contact Info ───── -->
@@ -132,11 +121,11 @@ const contactInfo: ContactInfo[] = [
             :ui="{ root: 'shadow-sm hover:shadow-md transition-shadow duration-300' }"
           >
             <div class="flex items-start gap-4">
-              <div class="shrink-0 size-10 rounded-full bg-[#0B2C6B]/10 flex items-center justify-center">
-                <UIcon :name="item.icon" class="size-5 text-[#0B2C6B]" />
+              <div class="shrink-0 size-10 rounded-full flex items-center justify-center">
+                <UIcon :name="item.icon" class="size-5" />
               </div>
               <div>
-                <h3 class="font-semibold text-sm text-[#0B2C6B] uppercase tracking-wider">
+                <h3 class="font-semibold text-sm uppercase tracking-wider">
                   {{ item.title }}
                 </h3>
                 <p class="mt-1 text-base text-gray-700 whitespace-pre-line leading-relaxed">
@@ -148,7 +137,7 @@ const contactInfo: ContactInfo[] = [
 
           <!-- Social Media -->
           <div class="pt-2">
-            <h3 class="font-semibold text-sm text-[#0B2C6B] uppercase tracking-wider mb-4">
+            <h3 class="font-semibold text-sm uppercase tracking-wider mb-4">
               Social Media
             </h3>
             <div class="flex items-center gap-3">
