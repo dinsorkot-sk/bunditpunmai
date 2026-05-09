@@ -93,7 +93,7 @@ const socialLinks: SocialLink[] = [
 </script>
 
 <template>
-  <UHeader title="BunditPunMai" to="/">
+  <UHeader title="โครงการผลิตบัณฑิตพันธ์ใหม่" to="/">
     <UNavigationMenu :items="headerItems" />
 
     <template #right>
