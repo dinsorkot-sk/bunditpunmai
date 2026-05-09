@@ -45,6 +45,7 @@ export default defineNuxtConfig({
   routeRules: {
     // Set layout for specific route
     '/admin/**': { appLayout: 'admin' },
+    '/user/**': { appLayout: 'user' },
     '/login': { appLayout: 'auth' },
   },
 })
