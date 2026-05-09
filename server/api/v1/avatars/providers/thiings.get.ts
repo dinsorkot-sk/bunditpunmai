@@ -87,15 +87,12 @@ export default defineEventHandler(async (event) => {
     let match: RegExpExecArray | null
     while ((match = thingRegex.exec(cleaned)) !== null) {
       try {
-        const categories: string[] = JSON.parse(match[3])
-        items.push({
-          id: match[1],
-          name: match[2],
-          categories,
-          fileId: match[4],
-          imageUrl: match[4], // will be resolved to local path
-          isLatest: match[6] === 'true',
-        })
+        const id = match[1]!
+        const name = match[2]!
+        const categories: string[] = JSON.parse(match[3]!)
+        const fileId = match[4]!
+        const isLatest = match[6]! === 'true'
+        items.push({ id, name, categories, fileId, imageUrl: fileId, isLatest })
       } catch {
         // Skip malformed entries
       }
