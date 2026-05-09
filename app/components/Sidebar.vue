@@ -55,6 +55,11 @@ const items: NavigationMenuItem[][] = [
         { label: 'Videos', icon: 'i-lucide-video', to: '/admin/media/videos' },
         { label: 'Resources', icon: 'i-lucide-file', to: '/admin/media/resources' }
       ]
+    },
+    {
+      label: 'Settings',
+      icon: 'i-lucide-settings',
+      to: '/admin/settings'
     }
   ],
   [],

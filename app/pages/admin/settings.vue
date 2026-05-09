@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ layout: 'admin' })
+
 const toast = useToast()
 const { user, fetchUser } = useAuth()
 
@@ -109,7 +111,7 @@ function formatDate(date: string | Date) {
           </template>
 
           <div class="flex items-center gap-4 mb-6">
-            <UAvatar :src="profileForm.avatar || user?.avatar" :alt="profileForm.name || 'User'" size="2xl" />
+            <UAvatar :src="profileForm.avatar || user?.avatar" :alt="profileForm.name || 'Admin'" size="2xl" />
             <div>
               <h2 class="text-lg font-semibold">{{ profileForm.name || user?.name }}</h2>
               <p class="text-sm text-muted">{{ profileForm.email || user?.email }}</p>
@@ -165,7 +167,7 @@ function formatDate(date: string | Date) {
           <div class="space-y-3 text-sm">
             <div class="flex justify-between">
               <span class="text-muted">Role</span>
-              <UBadge :label="user?.role || 'User'" color="primary" variant="subtle" size="xs" class="capitalize" />
+              <UBadge :label="user?.role || 'Admin'" color="primary" variant="subtle" size="xs" class="capitalize" />
             </div>
             <USeparator />
             <div class="flex justify-between">
