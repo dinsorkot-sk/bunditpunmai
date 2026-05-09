@@ -128,7 +128,11 @@ onMounted(async () => {
   <UPage>
     <UPageSection title="โครงการผลิตบัณฑิตพันธุ์ใหม่ 2567"
       description="สร้างคนที่มีสมรรถนะสูงสำหรับอุตสาหกรรม New Growth Engine ตามนโยบาย Thailand 4.0 และปฏิรูปการอุดมศึกษาไทย"
-      orientation="horizontal" :links="links" />
+      orientation="horizontal" :links="links">
+      <img src="https://bunditpunmai-mju.com/img/IMG_2305.png"  alt="Illustration" class="w-full rounded-lg"
+        loading="lazy" />
+    </UPageSection>
+
 
     <UPageSection title="เป้าหมายของเรา"
       description="เพื่อสร้างบุคลากรที่มีประสิทธิภาพสูงในอุตสาหกรรม New Growth Engine ตามนโยบายไทยแลนด์ 4.0 และปฏิรูปการศึกษาระดับอุดมศึกษาของไทย โดยพัฒนาบัณฑิตให้มีทักษะที่ล้ำสมัย พร้อมที่จะขับเคลื่อนการสร้างสรรค์นวัตกรรมและการเติบโตทางเศรษฐกิจ"
