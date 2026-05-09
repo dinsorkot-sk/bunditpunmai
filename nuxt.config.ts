@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui','@nuxthub/core', '@scalar/nuxt', '@nuxt/test-utils/module'],
+  modules: ['@nuxt/ui','@nuxthub/core', '@scalar/nuxt', '@nuxt/test-utils/module', '@nuxtjs/google-fonts'],
   css: ['~/assets/css/main.css'],
   hub: {
     db: 'sqlite',
@@ -11,6 +11,20 @@ export default defineNuxtConfig({
       dir: '.data/blob'
     }
   },
+  googleFonts: {
+    families: {
+      Prompt: {
+        wght: [300, 400, 500, 600, 700],
+        ital: [300, 400, 500, 600, 700],
+      },
+    },
+    display: 'swap',
+    subsets: ['latin', 'thai'],
+    prefetch: true,
+    preconnect: true,
+    preload: true,
+  },
+
   nitro: {
     experimental: {
       openAPI: true,

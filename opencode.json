@@ -1,49 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "agent": {
-    "build": {
-      "mode": "primary",
-      "permission": {
-        "edit": "allow",
-        "bash": {
-          "*": "ask",
-          "git status": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "npm run*": "allow",
-          "yarn*": "allow"
-        },
-        "grep": "allow",
-        "glob": "allow",
-        "lsp": "allow",
-        "skill": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "websearch": "allow",
-        "question": "allow"
-      },
-      "color": "#4ade80"
-    },
-    "plan": {
-      "mode": "primary",
-      "temperature": 0.2,
-      "permission": {
-        "edit": "deny",
-        "bash": "deny",
-        "grep": "allow",
-        "glob": "allow",
-        "lsp": "allow",
-        "skill": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "websearch": "allow",
-        "question": "allow"
-      },
-      "color": "#60a5fa"
-    },
     "orchestrator": {
+      "description": "Primary orchestration agent. Auto-routes tasks to specialist agents based on request type. Handles full workflows end-to-end with minimal manual intervention.",
       "mode": "primary",
       "temperature": 0.2,
+      "prompt": "{file:./.opencode/agents/orchestrator.md}",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -66,7 +28,7 @@
       "color": "#60a5fa"
     },
     "analyst": {
-      "description": "Analyzes requirements and creates implementation plans. Invoke first for any new feature, refactor, or ambiguous request.",
+      "description": "Analyzes requirements and creates a structured task graph with dependencies. Invoke first for any new feature, refactor, or ambiguous request.",
       "mode": "subagent",
       "temperature": 0.2,
       "prompt": "{file:./.opencode/agents/analyst.md}",
@@ -81,8 +43,24 @@
       },
       "color": "#a78bfa"
     },
+    "architect": {
+      "description": "Designs system architecture — component structure, data models, API contracts, and tech decisions. Invoke before backend/frontend for any new system or major feature.",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "prompt": "{file:./.opencode/agents/architect.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "websearch": "allow"
+      },
+      "color": "#818cf8"
+    },
     "backend": {
-      "description": "Implements backend logic — APIs, services, database queries, and server-side code.",
+      "description": "Implements backend logic — APIs, services, database queries, and server-side code. Follow analyst/architect plan exactly.",
       "mode": "subagent",
       "temperature": 0.3,
       "prompt": "{file:./.opencode/agents/backend.md}",
@@ -91,17 +69,26 @@
         "bash": {
           "*": "ask",
           "git status": "allow",
-          "git diff*": "allow",
-          "npm run*": "allow",
-          "yarn*": "allow",
-          "python*": "allow",
-          "go *": "allow"
-        }
+          "git diff": "allow",
+          "git log*": "allow",
+          "npm run build": "allow",
+          "npm run lint": "allow",
+          "npm run typecheck": "allow",
+          "yarn build": "allow",
+          "yarn lint": "allow",
+          "python -m py_compile *": "allow",
+          "go build ./...": "allow",
+          "go vet ./...": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#f59e0b"
     },
     "frontend": {
-      "description": "Implements UI components, pages, styles, and client-side logic.",
+      "description": "Implements UI components, pages, styles, and client-side logic. Can run in parallel with backend after architect defines the API contract.",
       "mode": "subagent",
       "temperature": 0.3,
       "prompt": "{file:./.opencode/agents/frontend.md}",
@@ -110,16 +97,43 @@
         "bash": {
           "*": "ask",
           "git status": "allow",
-          "git diff*": "allow",
-          "npm run*": "allow",
-          "yarn*": "allow",
+          "git diff": "allow",
+          "npm run build": "allow",
+          "npm run lint": "allow",
+          "yarn build": "allow",
+          "yarn lint": "allow",
           "npx*": "allow"
-        }
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#fb7185"
     },
+    "security": {
+      "description": "Reviews code for OWASP vulnerabilities — injection, auth flaws, secrets exposure, and insecure configs. Read-only. Auto-invoked after any auth/API/data implementation.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/agents/security.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "grep *": "allow",
+          "cat *": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
+      },
+      "color": "#f87171"
+    },
     "reviewer": {
-      "description": "Reviews code for correctness, security, performance, and maintainability. Read-only.",
+      "description": "Reviews code for correctness, security, performance, and maintainability. Read-only. Invoked after every implementation.",
       "mode": "subagent",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/agents/reviewer.md}",
@@ -131,12 +145,16 @@
           "git log*": "allow",
           "git status": "allow",
           "grep *": "allow"
-        }
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#22d3ee"
     },
     "tester": {
-      "description": "Writes and runs tests — unit, integration, and regression. Invoke after implementation and review.",
+      "description": "Writes and runs tests — unit, integration, and regression. Invoked after implementation and review.",
       "mode": "subagent",
       "temperature": 0.2,
       "prompt": "{file:./.opencode/agents/tester.md}",
@@ -151,29 +169,39 @@
           "jest*": "allow",
           "vitest*": "allow",
           "git diff*": "allow"
-        }
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#86efac"
     },
     "debugger": {
-      "description": "Investigates bugs and performs root cause analysis. Read-only — produces a diagnosis for the backend agent to fix.",
+      "description": "Investigates bugs and performs root cause analysis. Read-only — produces RCA for backend to fix.",
       "mode": "subagent",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/agents/debugger.md}",
       "permission": {
         "edit": "deny",
         "bash": {
-          "*": "ask",
+          "*": "deny",
           "git log*": "allow",
           "git diff*": "allow",
           "git blame*": "allow",
-          "grep *": "allow"
-        }
+          "grep *": "allow",
+          "cat *": "allow",
+          "ls *": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#f97316"
     },
     "refactor": {
-      "description": "Cleans up and restructures existing code without changing behavior. Use for technical debt and code quality improvements.",
+      "description": "Cleans up and restructures existing code without changing behavior. Invoked after implementation is complete and tests pass.",
       "mode": "subagent",
       "temperature": 0.2,
       "prompt": "{file:./.opencode/agents/refactor.md}",
@@ -186,13 +214,37 @@
           "grep *": "allow",
           "npm test*": "allow",
           "yarn test*": "allow",
-          "pytest*": "allow"
-        }
+          "pytest*": "allow",
+          "go test*": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#c084fc"
     },
+    "docs": {
+      "description": "Writes and updates technical documentation — README, API docs, changelogs, and inline comments. Invoked after implementation is reviewed and tested.",
+      "mode": "subagent",
+      "temperature": 0.4,
+      "prompt": "{file:./.opencode/agents/docs.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "deny",
+          "git diff*": "allow",
+          "git log*": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
+      },
+      "color": "#34d399"
+    },
     "devops": {
-      "description": "Handles infrastructure, CI/CD, Docker, Kubernetes, and deployments. High-risk — all destructive ops require confirmation.",
+      "description": "Handles infrastructure, CI/CD, Docker, Kubernetes, and deployments. Highest-risk agent — all destructive and production ops require explicit user confirmation.",
       "mode": "subagent",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/agents/devops.md}",
@@ -203,11 +255,19 @@
           "git status": "allow",
           "git diff*": "allow",
           "docker ps": "allow",
+          "docker images": "allow",
           "docker logs*": "allow",
           "kubectl get*": "allow",
           "kubectl describe*": "allow",
-          "kubectl logs*": "allow"
-        }
+          "kubectl logs*": "allow",
+          "kubectl diff*": "allow",
+          "terraform plan": "allow",
+          "helm diff*": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow"
       },
       "color": "#ef4444"
     }

@@ -33,6 +33,7 @@
     "@libsql/client": "^0.17.3",
     "@nuxt/ui": "^4.7.1",
     "@nuxthub/core": "0.10.7",
+    "@nuxtjs/google-fonts": "^3.2.0",
     "@scalar/nuxt": "0.6.27",
     "@vercel/blob": "^2.3.3",
     "bcryptjs": "^3.0.3",
