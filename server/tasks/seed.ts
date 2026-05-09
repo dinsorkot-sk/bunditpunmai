@@ -53,23 +53,25 @@ export default defineTask({
             createdAt: f.date(),
           },
         },
-        // --- Roles (3) ---
+        // --- Roles (4) ---
         roles: {
-          count: 3,
+          count: 4,
           columns: {
-            name: f.valuesFromArray({ values: ['admin', 'editor', 'viewer'] }),
+            name: f.valuesFromArray({ values: ['admin', 'editor', 'viewer', 'user'] }),
             createdAt: f.date(),
           },
         },
-        // --- Permissions (8) ---
+        // --- Permissions (14) ---
         permissions: {
-          count: 8,
+          count: 14,
           columns: {
             name: f.valuesFromArray({
               values: [
                 'posts.create', 'posts.update', 'posts.delete',
                 'users.manage', 'roles.manage', 'comments.moderate',
                 'media.upload', 'media.delete',
+                'blogs.create', 'blogs.update', 'blogs.delete',
+                'comments.create', 'comments.update', 'comments.delete',
               ],
             }),
             description: f.loremIpsum(),
@@ -206,11 +208,27 @@ export default defineTask({
       }))
       await db.insert(schema.userRoles).values(userRoleEntries)
 
+      const permissionMap: Record<string, string[]> = {
+        admin: [
+          'posts.create', 'posts.update', 'posts.delete',
+          'users.manage', 'roles.manage', 'comments.moderate',
+          'media.upload', 'media.delete',
+          'blogs.create', 'blogs.update', 'blogs.delete',
+          'comments.create', 'comments.update', 'comments.delete',
+        ],
+        editor: ['posts.create', 'posts.update', 'posts.delete', 'users.manage'],
+        viewer: ['posts.create', 'posts.update'],
+        user: ['posts.create', 'posts.update', 'posts.delete', 'blogs.create', 'blogs.update', 'blogs.delete'],
+      }
+
       const rolePermEntries: { roleId: number; permissionId: number }[] = []
       for (const role of seededRoles) {
-        const permCount = role.name === 'admin' ? seededPermissions.length : role.name === 'editor' ? 4 : 2
-        for (let i = 0; i < permCount; i++) {
-          rolePermEntries.push({ roleId: role.id!, permissionId: seededPermissions[i].id! })
+        const permNames = permissionMap[role.name] || []
+        for (const permName of permNames) {
+          const perm = seededPermissions.find((p: { id: number; name: string; description: string | null }) => p.name === permName)
+          if (perm) {
+            rolePermEntries.push({ roleId: role.id!, permissionId: perm.id! })
+          }
         }
       }
       await db.insert(schema.rolePermissions).values(rolePermEntries)

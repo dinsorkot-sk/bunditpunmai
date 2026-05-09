@@ -41,5 +41,10 @@ export default defineNuxtConfig({
         '@nuxt/ui > prosemirror-gapcursor'
       ]
     }
-  }
+  },
+  routeRules: {
+    // Set layout for specific route
+    '/admin/**': { appLayout: 'admin' },
+    '/login': { appLayout: 'auth' },
+  },
 })

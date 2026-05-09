@@ -2,6 +2,7 @@ import { db } from '@nuxthub/db'
 import { users } from '#server/db/tables/users'
 import { compare } from '#server/utils/bcrypt'
 import { sign, ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, COOKIE_OPTIONS } from '#server/utils/jwt'
+import { getUserRole } from '#server/utils/auth'
 import { validate } from '#server/utils/validation'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
@@ -66,17 +67,22 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // Fetch user's primary role
+  const role = await getUserRole(user.id)
+
   // Generate tokens
   const accessToken = await sign({
     userId: user.id,
     email: user.email,
     name: user.name,
+    role,
   }, 'access')
 
   const refreshToken = await sign({
     userId: user.id,
     email: user.email,
     name: user.name,
+    role,
   }, 'refresh')
 
   // Set cookies
@@ -96,6 +102,7 @@ export default defineEventHandler(async (event) => {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
+      role,
     },
     accessToken,
     refreshToken,

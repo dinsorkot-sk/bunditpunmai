@@ -17,6 +17,7 @@ export interface TokenPayload extends JWTPayload {
   userId: number
   email: string
   name: string
+  role?: string
 }
 
 export async function sign(

@@ -1,5 +1,9 @@
 import type { H3Event } from 'h3'
 import { getCookie, getHeader, createError } from 'h3'
+import { db } from '@nuxthub/db'
+import { eq } from 'drizzle-orm'
+import { userRoles } from '#server/db/tables/user_roles'
+import { roles } from '#server/db/tables/roles'
 import { ACCESS_TOKEN_COOKIE, verify, type TokenPayload } from '#server/utils/jwt'
 
 /**
@@ -17,6 +21,20 @@ export function getAccessToken(event: H3Event): string | null {
   }
 
   return token || null
+}
+
+/**
+ * Get the primary role name for a user.
+ * Returns the first role name found, or undefined if no role assigned.
+ */
+export async function getUserRole(userId: number): Promise<string | undefined> {
+  const result = await db.select({ name: roles.name })
+    .from(userRoles)
+    .innerJoin(roles, eq(userRoles.roleId, roles.id))
+    .where(eq(userRoles.userId, userId))
+    .get()
+
+  return result?.name
 }
 
 /**

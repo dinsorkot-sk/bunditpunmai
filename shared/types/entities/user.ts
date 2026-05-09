@@ -28,4 +28,6 @@ export interface UserForm {
 }
 
 // Public user (without password)
-export interface PublicUser extends Omit<User, 'password'> {}
+export interface PublicUser extends Omit<User, 'password'> {
+  role?: string
+}

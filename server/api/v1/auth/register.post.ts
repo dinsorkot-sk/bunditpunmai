@@ -1,8 +1,11 @@
 import { db } from '@nuxthub/db'
 import { users } from '#server/db/tables/users'
+import { userRoles } from '#server/db/tables/user_roles'
+import { roles } from '#server/db/tables/roles'
 import { hash } from '#server/utils/bcrypt'
 import { sign, ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, COOKIE_OPTIONS } from '#server/utils/jwt'
 import { validate } from '#server/utils/validation'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 const RegisterSchema = z.object({
@@ -63,19 +66,28 @@ export default defineEventHandler(async (event) => {
       createdAt: new Date(),
     }).returning()
 
-    const user = result[0]
+    const user = result[0]!
+
+    // Assign default "user" role
+    const userRole = await db.select().from(roles).where(eq(roles.name, 'user')).get()
+    if (userRole) {
+      await db.insert(userRoles).values({ userId: user.id, roleId: userRole.id })
+    }
+    const role = userRole?.name || 'user'
 
     // Generate tokens
     const accessToken = await sign({
-      userId: user!.id,
-      email: user!.email,
-      name: user!.name,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role,
     }, 'access')
 
     const refreshToken = await sign({
-      userId: user!.id,
-      email: user!.email,
-      name: user!.name,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role,
     }, 'refresh')
 
     // Set cookies
@@ -92,10 +104,11 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 201)
     return {
       user: {
-        id: user!.id,
-        name: user!.name,
-        email: user!.email,
-        avatar: user!.avatar,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role,
       },
       accessToken,
       refreshToken,

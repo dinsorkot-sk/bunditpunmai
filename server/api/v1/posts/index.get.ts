@@ -1,5 +1,6 @@
 import { db } from '@nuxthub/db'
 import { posts } from '#server/db/tables/posts'
+import { eq } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -17,6 +18,12 @@ defineRouteMeta({
         name: 'offset',
         schema: { type: 'integer', default: 0 },
       },
+      {
+        in: 'query',
+        name: 'authorId',
+        schema: { type: 'integer' },
+        description: 'Filter by author ID',
+      },
     ],
     responses: {
       200: { description: 'Posts list' },
@@ -29,7 +36,7 @@ export default defineEventHandler(async (event) => {
   const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
   const offset = Math.max(Number(query.offset) || 0, 0)
 
-  const result = await db.select({
+  const baseQuery = db.select({
     id: posts.id,
     title: posts.title,
     content: posts.content,
@@ -37,7 +44,11 @@ export default defineEventHandler(async (event) => {
     status: posts.status,
     authorId: posts.authorId,
     createdAt: posts.createdAt,
-  }).from(posts).limit(limit).offset(offset)
+  }).from(posts)
 
-  return result
+  if (query.authorId) {
+    return await baseQuery.where(eq(posts.authorId, Number(query.authorId))).limit(limit).offset(offset)
+  }
+
+  return await baseQuery.limit(limit).offset(offset)
 })

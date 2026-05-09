@@ -71,6 +71,7 @@ export default defineEventHandler(async (event) => {
     userId: payload.userId,
     email: payload.email,
     name: payload.name,
+    role: payload.role,
   }, 'access')
 
   // Update cookie

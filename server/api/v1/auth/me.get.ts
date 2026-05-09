@@ -1,6 +1,6 @@
 import { db } from '@nuxthub/db'
 import { users } from '#server/db/tables/users'
-import { authenticate } from '#server/utils/auth'
+import { authenticate, getUserRole } from '#server/utils/auth'
 import { eq } from 'drizzle-orm'
 
 defineRouteMeta({
@@ -29,11 +29,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // Fetch user's primary role
+  const role = await getUserRole(user.id)
+
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     avatar: user.avatar,
+    role,
     createdAt: user.createdAt.toISOString(),
   }
 })
