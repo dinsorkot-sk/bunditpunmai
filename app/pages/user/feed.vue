@@ -11,13 +11,41 @@ interface FeedItem {
   createdAt: string
 }
 
+interface CommentAuthor {
+  id: number
+  name: string
+  avatar: string
+}
+
+interface Comment {
+  id: number
+  content: string
+  status: string
+  postId: number | null
+  blogId: number | null
+  authorId: number
+  author?: CommentAuthor
+  createdAt: string
+}
+
 const toast = useToast()
-const { user } = useAuth()
+const { user: currentUser } = useAuth()
 
 const feed = ref<FeedItem[]>([])
 const loading = ref(true)
 const limit = ref(20)
 const offset = ref(0)
+
+// commentsByItem: key = `${type}-${id}`, value = array of comments
+const commentsByItem = ref<Record<string, Comment[]>>({})
+const loadingComments = ref(false)
+
+// Track which items have the comment input expanded
+const expandedComments = ref<Record<string, boolean>>({})
+// Track comment input text per item
+const commentInputs = ref<Record<string, string>>({})
+// Track submitting state per item
+const submittingComment = ref<Record<string, boolean>>({})
 
 async function loadFeed() {
   loading.value = true
@@ -32,6 +60,9 @@ async function loadFeed() {
 
     feed.value = [...mappedPosts, ...mappedBlogs]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    // After loading items, fetch their comments
+    await loadComments()
   } catch (err) {
     toast.add({ title: 'Failed to load feed', color: 'error' })
   } finally {
@@ -39,7 +70,83 @@ async function loadFeed() {
   }
 }
 
-function formatDate(date: string) {
+async function loadComments() {
+  const postIds = feed.value.filter(i => i.type === 'post').map(i => i.id)
+  const blogIds = feed.value.filter(i => i.type === 'blog').map(i => i.id)
+
+  if (postIds.length === 0 && blogIds.length === 0) return
+
+  loadingComments.value = true
+  try {
+    const params: Record<string, any> = { limit: 100 }
+    if (postIds.length > 0) params.postIds = postIds.join(',')
+    if (blogIds.length > 0) params.blogIds = blogIds.join(',')
+
+    const data = await $fetch<Comment[]>('/api/v1/comments', { query: params })
+
+    // Organize comments by item key
+    const map: Record<string, Comment[]> = {}
+    for (const comment of data) {
+      let key: string | null = null
+      if (comment.postId) key = `post-${comment.postId}`
+      else if (comment.blogId) key = `blog-${comment.blogId}`
+
+      if (key) {
+        if (!map[key]) map[key] = []
+        map[key].push(comment)
+      }
+    }
+
+    // Initialize empty arrays for items without comments
+    for (const item of feed.value) {
+      const key = `${item.type}-${item.id}`
+      if (!map[key]) map[key] = []
+    }
+
+    commentsByItem.value = map
+  } catch (err) {
+    console.error('Failed to load comments', err)
+  } finally {
+    loadingComments.value = false
+  }
+}
+
+async function addComment(item: FeedItem) {
+  const key = `${item.type}-${item.id}`
+  const content = commentInputs.value[key]?.trim()
+  if (!content) return
+
+  submittingComment.value[key] = true
+  try {
+    const body: Record<string, any> = { content }
+    if (item.type === 'post') body.postId = item.id
+    else body.blogId = item.id
+
+    const newComment = await $fetch<Comment>('/api/v1/comments', {
+      method: 'POST',
+      body,
+    })
+
+    // Append to comments list immediately
+    if (!commentsByItem.value[key]) commentsByItem.value[key] = []
+    commentsByItem.value[key].push(newComment)
+    commentInputs.value[key] = ''
+    toast.add({ title: 'Comment added!', color: 'success' })
+  } catch (err: any) {
+    toast.add({
+      title: err?.data?.statusMessage || 'Failed to add comment',
+      color: 'error',
+    })
+  } finally {
+    submittingComment.value[key] = false
+  }
+}
+
+function toggleComments(key: string) {
+  expandedComments.value[key] = !expandedComments.value[key]
+}
+
+function formatDate(date: string | Date) {
   const d = new Date(date)
   const now = new Date()
   const diffMs = now.getTime() - d.getTime()
@@ -121,6 +228,73 @@ onMounted(() => loadFeed())
                   variant="subtle"
                   size="xs"
                   class="capitalize"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments Section -->
+          <UDivider class="my-3" />
+
+          <div class="space-y-2">
+            <!-- Comment Toggle -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors"
+              @click="toggleComments(`${item.type}-${item.id}`)"
+            >
+              <UIcon :name="expandedComments[`${item.type}-${item.id}`] ? 'i-lucide-chevron-down' : 'i-lucide-message-square'" class="size-3.5" />
+              <span>
+                {{ commentsByItem[`${item.type}-${item.id}`]?.length || 0 }}
+                {{ (commentsByItem[`${item.type}-${item.id}`]?.length || 0) === 1 ? 'Comment' : 'Comments' }}
+              </span>
+            </button>
+
+            <!-- Expanded Comments -->
+            <div v-if="expandedComments[`${item.type}-${item.id}`]" class="space-y-2 pl-2 border-l-2 border-muted">
+              <!-- Loading -->
+              <div v-if="loadingComments" class="text-xs text-muted py-1">Loading comments...</div>
+
+              <!-- No comments -->
+              <p v-else-if="(commentsByItem[`${item.type}-${item.id}`]?.length || 0) === 0" class="text-xs text-muted py-1">
+                No comments yet. Be the first to comment!
+              </p>
+
+              <!-- Comment List -->
+              <div v-for="comment in commentsByItem[`${item.type}-${item.id}`]" :key="comment.id" class="py-1.5">
+                <div class="flex items-start gap-2">
+                  <UAvatar
+                    :src="comment.author?.avatar || undefined"
+                    :alt="comment.author?.name || 'User'"
+                    size="xs"
+                    class="mt-0.5"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-medium">{{ comment.author?.name || 'Unknown' }}</span>
+                      <span class="text-[10px] text-muted">{{ formatDate(comment.createdAt) }}</span>
+                    </div>
+                    <p class="text-xs text-muted mt-0.5">{{ comment.content }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comment Input -->
+              <div class="flex gap-2 pt-1">
+                <UInput
+                  v-model="commentInputs[`${item.type}-${item.id}`]"
+                  placeholder="Write a comment..."
+                  size="sm"
+                  class="flex-1"
+                  :disabled="submittingComment[`${item.type}-${item.id}`]"
+                  @keydown.enter.prevent="addComment(item)"
+                />
+                <UButton
+                  icon="i-lucide-send"
+                  size="sm"
+                  color="primary"
+                  :loading="submittingComment[`${item.type}-${item.id}`]"
+                  :disabled="!commentInputs[`${item.type}-${item.id}`]?.trim()"
+                  @click="addComment(item)"
                 />
               </div>
             </div>
