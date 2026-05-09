@@ -6,6 +6,7 @@ interface NewsCard {
   description: string
   date: string | Date
   image: string
+  to: string
 }
 
 const PAGE_SIZE = 6
@@ -16,12 +17,13 @@ const offset = ref(0)
 const hasMore = ref(true)
 const loadingMore = ref(false)
 
-function mapNews(item: { title: string; description: string; createdAt: string | Date }): NewsCard {
+function mapNews(item: { id: number; title: string; description: string; createdAt: string | Date }): NewsCard {
   return {
     title: item.title,
     description: item.description,
     date: item.createdAt,
     image: 'https://picsum.photos/800/600?random=news',
+    to: `/news/${item.id}`,
   }
 }
 

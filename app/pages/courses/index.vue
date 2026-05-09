@@ -6,6 +6,7 @@ interface CourseCard {
   description: string
   date: string | Date
   image: string
+  to: string
 }
 
 const PAGE_SIZE = 6
@@ -16,12 +17,13 @@ const offset = ref(0)
 const hasMore = ref(true)
 const loadingMore = ref(false)
 
-function mapCourse(item: { title: string; description: string; createdAt: string | Date }): CourseCard {
+function mapCourse(item: { id: number; title: string; description: string; createdAt: string | Date }): CourseCard {
   return {
     title: item.title,
     description: item.description,
     date: item.createdAt,
     image: 'https://picsum.photos/800/600?random=course',
+    to: `/courses/${item.id}`,
   }
 }
 

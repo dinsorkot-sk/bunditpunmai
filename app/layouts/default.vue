@@ -22,6 +22,11 @@ const headerItems = computed<NavigationMenuItem[]>(() => [
     active: route.path.startsWith('/admissions'),
   },
   {
+    label: 'ข่าวสาร',
+    to: '/news',
+    active: route.path.startsWith('/news'),
+  },
+  {
     label: 'แหล่งเรียนรู้',
     to: '/e-learning',
     active: route.path.startsWith('/e-learning'),
@@ -52,6 +57,10 @@ const footerItems: NavigationMenuItem[] = [
   {
     label: 'การรับสมัคร',
     to: '/admissions',
+  },
+  {
+    label: 'ข่าวสาร',
+    to: '/news',
   },
   {
     label: 'แหล่งเรียนรู้',

@@ -56,7 +56,6 @@ const linkCourses = ref<ButtonProps[]>([
     label: 'ทั้งหมด',
     trailingIcon: 'i-lucide-chevron-right',
     to: '/courses',
-    target: '_blank'
   }
 ])
 
@@ -64,7 +63,7 @@ const linkNews = ref<ButtonProps[]>([
   {
     label: 'ทั้งหมด',
     trailingIcon: 'i-lucide-chevron-right',
-    target: '_blank'
+    to: '/news',
   }
 ])
 
@@ -86,6 +85,7 @@ onMounted(async () => {
       description: c.description,
       date: c.createdAt,
       image: 'https://picsum.photos/800/600?random=course',
+      to: `/courses/${c.id}`,
     }))
 
   // Fallback: if no published courses, show without filtering
@@ -95,6 +95,7 @@ onMounted(async () => {
       description: c.description,
       date: c.createdAt,
       image: 'https://picsum.photos/800/600?random=course',
+      to: `/courses/${c.id}`,
     }))
   }
 
@@ -107,6 +108,7 @@ onMounted(async () => {
       description: b.description,
       date: b.createdAt,
       image: 'https://picsum.photos/800/600?random=blog',
+      to: `/news/${b.id}`,
     }))
 
   // Fallback: if no published blogs, show without filtering
@@ -116,6 +118,7 @@ onMounted(async () => {
       description: b.description,
       date: b.createdAt,
       image: 'https://picsum.photos/800/600?random=blog',
+      to: `/news/${b.id}`,
     }))
   }
 })
