@@ -7,7 +7,7 @@ definePageMeta({
 })
 
 const toast = useToast()
-const { login, loading } = useAuth()
+const { login, loading, user } = useAuth()
 
 const fields: AuthFormField[] = [{
   name: 'email',
@@ -44,7 +44,13 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     const { email, password } = payload.data
     await login(email, password)
     toast.add({ title: 'Welcome back!', color: 'success' })
-    await navigateTo('/admin')
+    // Redirect based on user role
+    const role = user.value?.role
+    if (role === 'user') {
+      await navigateTo('/user')
+    } else {
+      await navigateTo('/admin')
+    }
   } catch (err: any) {
     toast.add({
       title: err?.data?.statusMessage || err?.message || 'Login failed',
