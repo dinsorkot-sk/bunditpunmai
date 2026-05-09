@@ -11,17 +11,17 @@ const features = ref<Feature[]>([
     {
         title: 'ระยะเวลาการรับสมัคร',
         description: 'November 1, 2023 - January 15, 2024',
-        icon: 'i-lucide-smile',
+        icon: 'i-lucide-calendar-days',
     },
     {
         title: 'คัดเลือก',
         description: 'January 20 - February 10, 2024',
-        icon: 'i-lucide-a-large-small',
+        icon: 'i-lucide-users',
     },
     {
         title: 'เริ่มอบรม',
         description: 'February - March 2024 (varies by course)',
-        icon: 'i-lucide-sun-moon',
+        icon: 'i-lucide-graduation-cap',
     },
 ])
 
@@ -55,27 +55,27 @@ const documents = ref([
         description: 'กรอกแบบฟอร์มใบสมัครออนไลน์ให้ครบถ้วน',
     },
     {
-        icon: 'i-lucide-file-text',
+        icon: 'i-lucide-user',
         label: 'CV/Resume',
         description: 'ประวัติย่อล่าสุดที่เน้นด้านการศึกษา ทักษะ และประสบการณ์ที่เกี่ยวข้องของคุณ',
     },
     {
-        icon: 'i-lucide-file-text',
+        icon: 'i-lucide-book-open',
         label: 'สำเนาผลการเรียนทางวิชาการ',
         description: 'สำเนาผลการเรียนอย่างเป็นทางการจากมหาวิทยาลัยของคุณ',
     },
     {
-        icon: 'i-lucide-file-text',
+        icon: 'i-lucide-id-card',
         label: 'สำเนาบัตรประชาชน/หนังสือเดินทาง',
         description: 'เอกสารยืนยันตัวตนที่ยังไม่หมดอายุ',
     },
     {
-        icon: 'i-lucide-file-text',
+        icon: 'i-lucide-pen-tool',
         label: 'คำชี้แจงส่วนตัว',
         description: 'คำชี้แจงที่อธิบายถึงความสนใจของคุณในโปรแกรมนี้และว่าโปรแกรมนี้สอดคล้องกับเป้าหมายอาชีพของคุณอย่างไร (500–800 คำ)',
     },
     {
-        icon: 'i-lucide-file-text',
+        icon: 'i-lucide-mail',
         label: 'จดหมายอ้างอิง',
         description: 'จดหมายแนะนำอย่างน้อยหนึ่งฉบับจากผู้อ้างอิงทางวิชาการหรือวิชาชีพ',
     },

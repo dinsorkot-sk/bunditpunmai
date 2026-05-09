@@ -128,7 +128,7 @@ const contactInfo: ContactInfo[] = [
                 <h3 class="font-semibold text-sm uppercase tracking-wider">
                   {{ item.title }}
                 </h3>
-                <p class="mt-1 text-base text-gray-700 whitespace-pre-line leading-relaxed">
+                <p class="mt-1 text-base whitespace-pre-line leading-relaxed">
                   {{ item.content }}
                 </p>
               </div>
