@@ -18,6 +18,7 @@ const toast = useToast()
 const limit = ref(20)
 const offset = ref(0)
 const showCreateModal = ref(false)
+const showAvatarPicker = ref(false)
 const editingUser = ref<ApiUser | null>(null)
 const submitting = ref(false)
 const form = ref({
@@ -170,8 +171,15 @@ onMounted(() => {
               <UInput v-model="form.password" type="password"
                 :placeholder="isEditing ? 'Leave blank to keep current' : 'Enter password'" class="w-full" />
             </UFormField>
-            <UFormField label="Avatar URL">
-              <UInput v-model="form.avatar" placeholder="Enter avatar URL" class="w-full" />
+            <UFormField label="Avatar">
+              <div class="flex items-center gap-3 w-full">
+                <UAvatar v-if="form.avatar" :src="form.avatar" size="sm" />
+                <div class="flex gap-2">
+                  <UButton label="Choose" color="primary" variant="outline" size="sm" @click="showAvatarPicker = true" />
+                  <UButton v-if="form.avatar" label="Remove" color="neutral" variant="ghost" size="sm" @click="form.avatar = ''" />
+                </div>
+              </div>
+              <ThiingsPicker v-model="form.avatar" v-model:open="showAvatarPicker" />
             </UFormField>
             <div class="flex justify-end gap-2">
               <UButton label="Cancel" variant="outline" @click="showCreateModal = false" />

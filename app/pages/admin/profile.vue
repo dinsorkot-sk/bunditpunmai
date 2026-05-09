@@ -4,6 +4,8 @@ definePageMeta({ layout: 'admin' })
 const { user, fetchUser } = useAuth()
 const toast = useToast()
 
+const showAvatarPicker = ref(false)
+
 const form = ref({
   name: user.value?.name || '',
   email: user.value?.email || '',
@@ -73,11 +75,15 @@ watchEffect(() => {
             <UFormField label="Email" required>
               <UInput v-model="form.email" type="email" placeholder="your@email.com" class="w-full" />
             </UFormField>
-            <UFormField label="Avatar URL">
-              <UInput v-model="form.avatar" placeholder="https://example.com/avatar.jpg" class="w-full" />
-              <template #hint>
-                <span class="text-xs text-muted">URL to your profile picture</span>
-              </template>
+            <UFormField label="Avatar">
+              <div class="flex items-center gap-3 w-full">
+                <UAvatar v-if="form.avatar" :src="form.avatar" size="lg" />
+                <div class="flex gap-2">
+                  <UButton label="Choose Avatar" color="primary" variant="outline" @click="showAvatarPicker = true" />
+                  <UButton v-if="form.avatar" label="Remove" color="neutral" variant="ghost" @click="form.avatar = ''" />
+                </div>
+              </div>
+              <ThiingsPicker v-model="form.avatar" v-model:open="showAvatarPicker" />
             </UFormField>
 
             <div class="flex justify-end gap-2 pt-2">

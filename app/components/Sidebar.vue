@@ -57,6 +57,11 @@ const items: NavigationMenuItem[][] = [
       ]
     },
     {
+      label: 'Profile',
+      icon: 'i-lucide-user',
+      to: '/admin/profile'
+    },
+    {
       label: 'Settings',
       icon: 'i-lucide-settings',
       to: '/admin/settings'

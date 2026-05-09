@@ -43,6 +43,8 @@ async function handleChangePassword() {
   }
 }
 
+const showAvatarPicker = ref(false)
+
 // ── Profile form ──
 const profileForm = ref({
   name: user.value?.name || '',
@@ -123,11 +125,15 @@ function formatDate(date: string | Date) {
             <UFormField label="Email" required>
               <UInput v-model="profileForm.email" type="email" placeholder="your@email.com" class="w-full" />
             </UFormField>
-            <UFormField label="Avatar URL">
-              <UInput v-model="profileForm.avatar" placeholder="https://example.com/avatar.jpg" class="w-full" />
-              <template #hint>
-                <span class="text-xs text-muted">URL to your profile picture</span>
-              </template>
+            <UFormField label="Avatar">
+              <div class="flex items-center gap-3 w-full">
+                <UAvatar v-if="profileForm.avatar" :src="profileForm.avatar" size="lg" />
+                <div class="flex gap-2">
+                  <UButton label="Choose Avatar" color="primary" variant="outline" @click="showAvatarPicker = true" />
+                  <UButton v-if="profileForm.avatar" label="Remove" color="neutral" variant="ghost" @click="profileForm.avatar = ''" />
+                </div>
+              </div>
+              <ThiingsPicker v-model="profileForm.avatar" v-model:open="showAvatarPicker" />
             </UFormField>
             <div class="flex justify-end gap-2 pt-2">
               <UButton type="submit" label="Save Changes" color="primary" :loading="submittingProfile" />
