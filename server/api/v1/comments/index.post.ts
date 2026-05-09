@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
   const result = await db.insert(comments).values({
     content: body.content.trim(),
-    status: 'approved',
+    status: 'pending',
     postId: body.postId || null,
     blogId: body.blogId || null,
     authorId: tokenPayload.userId,

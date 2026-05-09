@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { posts } from '#server/db/tables/posts'
 import { eq } from 'drizzle-orm'
+import { authenticate } from '#server/utils/auth'
 
 interface PartialPostForm {
   title?: string
@@ -34,7 +35,6 @@ defineRouteMeta({
               content: { type: 'string' },
               likes: { type: 'integer' },
               status: { type: 'string' },
-              authorId: { type: 'integer' },
             },
           },
         },
@@ -43,15 +43,34 @@ defineRouteMeta({
     responses: {
       200: { description: 'Post updated' },
       400: { description: 'Validation error' },
+      401: { description: 'Unauthorized' },
+      403: { description: 'Forbidden' },
       404: { description: 'Post not found' },
     },
   },
 })
 
+const ALLOWED_USER_STATUSES = ['draft', 'pending']
+
 export default defineEventHandler(async (event) => {
+  const tokenPayload = await authenticate(event)
   const id = getRouterParam(event, 'id')
   const postId = Number(id)
   const body = await readBody(event) as PartialPostForm
+
+  // Check if post exists
+  const existing = await db.select().from(posts).where(eq(posts.id, postId)).limit(1)
+  if (existing.length === 0) {
+    throw createError({ statusCode: 404, statusMessage: 'Post not found' })
+  }
+
+  const post = existing[0]
+
+  // Regular users can only edit their own posts
+  const isAdmin = tokenPayload.role === 'admin' || tokenPayload.role === 'editor'
+  if (!isAdmin && post.authorId !== tokenPayload.userId) {
+    throw createError({ statusCode: 403, statusMessage: 'You can only edit your own posts' })
+  }
 
   // Filter out undefined values for partial update
   const updateData: Record<string, unknown> = {}
@@ -61,13 +80,14 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Check if post exists
-  const existing = await db.select().from(posts).where(eq(posts.id, postId)).limit(1)
-  if (existing.length === 0) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Post not found',
-    })
+  // Regular users cannot set status to 'published' or 'archived'
+  if (!isAdmin && body.status) {
+    if (!ALLOWED_USER_STATUSES.includes(body.status)) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Users can only set status to draft or pending',
+      })
+    }
   }
 
   // Update post with partial data (only provided fields)

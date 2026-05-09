@@ -22,7 +22,6 @@ const items: NavigationMenuItem[][] = [
       defaultOpen: true,
       children: [
         { label: 'My Posts', icon: 'i-lucide-newspaper', to: '/user/my-content/posts' },
-        { label: 'My Blogs', icon: 'i-lucide-book-open', to: '/user/my-content/blogs' },
         { label: 'My Comments', icon: 'i-lucide-message-square', to: '/user/my-content/comments' }
       ]
     },

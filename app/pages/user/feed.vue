@@ -51,8 +51,8 @@ async function loadFeed() {
   loading.value = true
   try {
     const [posts, blogs] = await Promise.all([
-      $fetch<FeedItem[]>('/api/v1/posts', { query: { limit: limit.value, offset: offset.value } }),
-      $fetch<FeedItem[]>('/api/v1/blogs', { query: { limit: limit.value, offset: offset.value } }),
+      $fetch<FeedItem[]>('/api/v1/posts', { query: { limit: limit.value, offset: offset.value, status: 'published' } }),
+      $fetch<FeedItem[]>('/api/v1/blogs', { query: { limit: limit.value, offset: offset.value, status: 'published' } }),
     ])
 
     const mappedPosts: FeedItem[] = posts.map(p => ({ ...p, type: 'post' }))
@@ -78,7 +78,7 @@ async function loadComments() {
 
   loadingComments.value = true
   try {
-    const params: Record<string, any> = { limit: 100 }
+    const params: Record<string, any> = { limit: 100, status: 'approved' }
     if (postIds.length > 0) params.postIds = postIds.join(',')
     if (blogIds.length > 0) params.blogIds = blogIds.join(',')
 
@@ -169,6 +169,21 @@ function getTypeLabel(type: string) {
   return type === 'blog' ? 'Blog' : 'Post'
 }
 
+async function handleLike(item: FeedItem) {
+  try {
+    const endpoint = item.type === 'post'
+      ? `/api/v1/posts/${item.id}/like`
+      : `/api/v1/blogs/${item.id}/like`
+    const result = await $fetch<{ likes: number }>(endpoint, { method: 'POST' })
+    item.likes = result.likes
+  } catch (err: any) {
+    toast.add({
+      title: err?.data?.statusMessage || 'Failed to like',
+      color: 'error',
+    })
+  }
+}
+
 onMounted(() => loadFeed())
 </script>
 
@@ -217,18 +232,11 @@ onMounted(() => loadFeed())
               </div>
               <h3 class="font-semibold text-sm truncate">{{ item.title }}</h3>
               <p class="text-sm text-muted mt-1 line-clamp-2">{{ item.content }}</p>
-              <div class="flex items-center gap-3 mt-3 text-xs text-muted">
-                <span class="flex items-center gap-1">
+              <div class="flex items-center gap-3 mt-3 text-xs">
+                <button class="flex items-center gap-1 text-muted hover:text-red-500 transition-colors" @click="handleLike(item)">
                   <UIcon name="i-lucide-heart" class="size-3.5" />
                   {{ item.likes }}
-                </span>
-                <UBadge
-                  :label="item.status"
-                  :color="item.status === 'published' ? 'success' : item.status === 'draft' ? 'warning' : 'neutral'"
-                  variant="subtle"
-                  size="xs"
-                  class="capitalize"
-                />
+                </button>
               </div>
             </div>
           </div>

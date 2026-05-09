@@ -33,6 +33,7 @@ const form = ref({
 
 const statusOptions = [
   { label: 'Draft', value: 'draft' },
+  { label: 'Pending', value: 'pending' },
   { label: 'Published', value: 'published' },
   { label: 'Archived', value: 'archived' },
 ]
@@ -99,6 +100,17 @@ async function handleSubmit() {
   }
 }
 
+async function handleApprove(post: { id: number; title: string }) {
+  try {
+    await updatePost(post.id, { status: 'published' } as any)
+    toast.add({ title: `"${post.title}" approved!`, color: 'success' })
+    fetchPosts({ limit: limit.value, offset: offset.value })
+  } catch (error: unknown) {
+    console.error('Failed to approve post:', error)
+    toast.add({ title: 'Failed to approve post', color: 'error' })
+  }
+}
+
 async function handleDelete(post: { id: number; title: string }) {
   if (confirm(`Delete post "${post.title}"?`)) {
     try {
@@ -149,7 +161,7 @@ onMounted(() => {
       <UTable :data="posts" :columns="columns" :loading="loading" sticky>
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status"
-            :color="row.original.status === 'published' ? 'success' : 'neutral'" />
+            :color="row.original.status === 'published' ? 'success' : row.original.status === 'pending' ? 'warning' : 'neutral'" />
         </template>
         <template #authorId-cell="{ row }">
           {{ getAuthorName(row.original.authorId) }}
@@ -159,6 +171,9 @@ onMounted(() => {
         </template>
         <template #actions-cell="{ row }">
           <div class="flex gap-1">
+            <UButton v-if="row.original.status === 'pending'" icon="i-lucide-check-check" variant="ghost" size="xs" color="success"
+              title="Approve"
+              @click="handleApprove(row.original)" />
             <UButton icon="i-lucide-pencil" variant="ghost" size="xs"
               @click="openEditModal(row.original)" />
             <UButton icon="i-lucide-trash" variant="ghost" size="xs" color="error"

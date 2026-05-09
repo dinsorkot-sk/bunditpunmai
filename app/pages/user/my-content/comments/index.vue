@@ -113,7 +113,7 @@ onMounted(() => fetchMyComments())
         </template>
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status"
-            :color="row.original.status === 'active' ? 'success' : row.original.status === 'inactive' ? 'warning' : 'error'"
+            :color="row.original.status === 'approved' ? 'success' : row.original.status === 'pending' ? 'warning' : row.original.status === 'spam' ? 'error' : 'neutral'"
             class="capitalize" />
         </template>
         <template #createdAt-cell="{ row }">

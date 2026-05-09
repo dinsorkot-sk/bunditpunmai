@@ -27,7 +27,7 @@ const editingComment = ref<ApiComment | null>(null)
 const submitting = ref(false)
 const form = ref({
   content: '',
-  status: 'active',
+  status: 'pending',
   postId: undefined as number | undefined,
   authorId: undefined as number | undefined,
 })
@@ -47,14 +47,25 @@ const modalTitle = computed(() => isEditing.value ? 'Edit Comment' : 'Create Com
 const authorOptions = computed(() => users.value.map(u => ({ label: u.name, value: u.id })))
 const postOptions = computed(() => posts.value.map(p => ({ label: p.title, value: p.id })))
 const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Approved', value: 'approved' },
   { label: 'Spam', value: 'spam' },
 ]
 
 function resetForm() {
-  form.value = { content: '', status: 'active', postId: undefined, authorId: undefined }
+  form.value = { content: '', status: 'pending', postId: undefined, authorId: undefined }
   editingComment.value = null
+}
+
+async function handleApprove(comment: { id: number }) {
+  try {
+    await updateComment(comment.id, { status: 'approved' } as any)
+    toast.add({ title: 'Comment approved', color: 'success' })
+    fetchComments({ limit: limit.value, offset: offset.value })
+  } catch (error: unknown) {
+    console.error('Failed to approve comment:', error)
+    toast.add({ title: 'Failed to approve comment', color: 'error' })
+  }
 }
 
 function openCreateModal() {
@@ -153,7 +164,8 @@ onMounted(() => {
         </template>
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status"
-            :color="row.original.status === 'active' ? 'success' : row.original.status === 'spam' ? 'error' : 'neutral'" />
+            :color="row.original.status === 'approved' ? 'success' : row.original.status === 'pending' ? 'warning' : row.original.status === 'spam' ? 'error' : 'neutral'"
+            class="capitalize" />
         </template>
         <template #postId-cell="{ row }">
           {{ getPostTitle(row.original.postId) }}
@@ -166,6 +178,9 @@ onMounted(() => {
         </template>
         <template #actions-cell="{ row }">
           <div class="flex gap-1">
+            <UButton v-if="row.original.status === 'pending'" icon="i-lucide-check-check" variant="ghost" size="xs" color="success"
+              title="Approve"
+              @click="handleApprove(row.original)" />
             <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEditModal(row.original)" />
             <UButton icon="i-lucide-trash" variant="ghost" size="xs" color="error"
               @click="handleDelete(row.original)" />

@@ -45,6 +45,12 @@ defineRouteMeta({
       },
       {
         in: 'query',
+        name: 'status',
+        schema: { type: 'string' },
+        description: 'Filter by status (e.g. approved, pending)',
+      },
+      {
+        in: 'query',
         name: 'authorId',
         schema: { type: 'integer' },
         description: 'Filter by author ID',

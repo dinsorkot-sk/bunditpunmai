@@ -30,8 +30,7 @@ const form = ref({
 
 const statusOptions = [
   { label: 'Draft', value: 'draft' },
-  { label: 'Published', value: 'published' },
-  { label: 'Archived', value: 'archived' },
+  { label: 'Submit for Review', value: 'pending' },
 ]
 
 const columns = computed<TableColumn<ApiPost>[]>(() => [
@@ -146,7 +145,7 @@ onMounted(() => fetchMyPosts())
       <UTable :data="posts" :columns="columns" :loading="loading" sticky>
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status"
-            :color="row.original.status === 'published' ? 'success' : row.original.status === 'draft' ? 'warning' : 'neutral'"
+            :color="row.original.status === 'published' ? 'success' : row.original.status === 'pending' ? 'warning' : row.original.status === 'draft' ? 'neutral' : 'neutral'"
             class="capitalize" />
         </template>
         <template #createdAt-cell="{ row }">
