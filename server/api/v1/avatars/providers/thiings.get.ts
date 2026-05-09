@@ -18,8 +18,8 @@ const CACHE_TTL = 60 * 60 * 1000 // 1 hour
 defineRouteMeta({
   openAPI: {
     tags: ['avatars'],
-    summary: 'List available Thiings icons',
-    description: 'Fetch available 3D icons from thiings.co for use as avatars. Images are served locally via /avatars/{fileId}. Supports search by name or category.',
+    summary: 'List all available Thiings icons',
+    description: 'Fetch all available 3D icons from thiings.co for use as avatars. Images are served locally via /avatars/{fileId}. Supports search by name or category. Returns all matching items (no limit).',
     parameters: [
       {
         in: 'query',
@@ -35,15 +35,21 @@ defineRouteMeta({
         content: {
           'application/json': {
             schema: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string' },
-                  name: { type: 'string' },
-                  categories: { type: 'array', items: { type: 'string' } },
-                  imageUrl: { type: 'string', format: 'uri' },
+              type: 'object',
+              properties: {
+                data: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      name: { type: 'string' },
+                      categories: { type: 'array', items: { type: 'string' } },
+                      imageUrl: { type: 'string', format: 'uri' },
+                    },
+                  },
                 },
+                total: { type: 'integer', description: 'Total number of items' },
               },
             },
           },
@@ -60,7 +66,8 @@ export default defineEventHandler(async (event) => {
 
   // Return cached data if fresh
   if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
-    return toLocalPaths(filterItems(cache.data, search))
+    const filtered = filterItems(cache.data, search)
+    return { data: toLocalPaths(filtered), total: filtered.length }
   }
 
   try {
@@ -104,12 +111,14 @@ export default defineEventHandler(async (event) => {
 
     cache = { data: uniqueItems, timestamp: Date.now() }
 
-    return toLocalPaths(filterItems(uniqueItems, search))
+    const filtered = filterItems(uniqueItems, search)
+    return { data: toLocalPaths(filtered), total: filtered.length }
   } catch (error) {
     // On error, return stale cache if available
     if (cache) {
       console.warn('Failed to fetch thiings.co, returning stale cache:', error)
-      return toLocalPaths(filterItems(cache.data, search))
+      const filtered = filterItems(cache.data, search)
+      return { data: toLocalPaths(filtered), total: filtered.length }
     }
 
     throw createError({
@@ -120,17 +129,13 @@ export default defineEventHandler(async (event) => {
 })
 
 function filterItems(items: ThiingsItem[], search: string): ThiingsItem[] {
-  if (!search) {
-    return items.slice(0, 100)
-  }
+  if (!search) return items
 
-  return items
-    .filter(
-      (item) =>
-        item.name.toLowerCase().includes(search) ||
-        item.categories.some((c) => c.toLowerCase().includes(search)),
-    )
-    .slice(0, 100)
+  return items.filter(
+    (item) =>
+      item.name.toLowerCase().includes(search) ||
+      item.categories.some((c) => c.toLowerCase().includes(search)),
+  )
 }
 
 /** Convert fileId to local URL served by the avatars proxy route */
