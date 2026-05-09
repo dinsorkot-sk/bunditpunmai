@@ -23,5 +23,19 @@
       "tag": "0002_drop_news",
       "breakpoints": true
     },
-]
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1777190000000,
+      "tag": "0003_lucky_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1746830000000,
+      "tag": "0004_translation_tables",
+      "breakpoints": true
+    }
+  ]
 }

@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui','@nuxthub/core', '@scalar/nuxt', '@nuxt/test-utils/module', '@nuxtjs/google-fonts'],
+  modules: ['@nuxt/ui','@nuxthub/core', '@scalar/nuxt', '@nuxt/test-utils/module', '@nuxtjs/google-fonts', '@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
   hub: {
     db: 'sqlite',
@@ -23,6 +23,22 @@ export default defineNuxtConfig({
     prefetch: true,
     preconnect: true,
     preload: true,
+  },
+
+  i18n: {
+    defaultLocale: 'th',
+    locales: [
+      { code: 'th', language: 'th-TH', file: 'th.json', name: 'ไทย' },
+      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' }
+    ],
+    strategy: 'prefix_except_default',
+    lazy: true,
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      fallbackLocale: 'th',
+      redirectOn: 'root'
+    },
   },
 
   nitro: {
