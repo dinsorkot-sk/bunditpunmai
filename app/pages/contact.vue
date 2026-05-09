@@ -166,8 +166,8 @@ const contactInfo: ContactInfo[] = [
               body: 'p-6 sm:p-8',
             }"
           >
-            <h2 class="text-xl font-semibold text-gray-900 mb-1">ส่งข้อความถึงเรา</h2>
-            <p class="text-sm text-gray-500 mb-6">
+            <h2 class="text-xl font-semibold  mb-1">ส่งข้อความถึงเรา</h2>
+            <p class="text-sm mb-6">
               กรอกข้อมูลด้านล่าง แล้วทีมงานจะตอบกลับโดยเร็วที่สุด
             </p>
 
