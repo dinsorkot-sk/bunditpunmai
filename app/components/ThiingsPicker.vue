@@ -91,7 +91,7 @@ function retry() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Choose Avatar" :ui="{ width: 'max-w-4xl' }">
+  <UModal v-model:open="open" title="Choose Avatar" >
     <template #body>
       <!-- Search + count -->
       <div class="flex items-center gap-3">
@@ -110,9 +110,9 @@ function retry() {
       </div>
 
       <!-- Picker Grid -->
-      <div class="mt-4 max-h-[65vh] overflow-y-auto">
+      <div class="mt-4 max-h-[65vh] overflow-y-auto overflow-x-hidden">
         <!-- Loading state -->
-        <div v-if="loading" class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+        <div v-if="loading" class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-3">
           <div
             v-for="n in 24"
             :key="n"
@@ -141,7 +141,7 @@ function retry() {
 
         <!-- Grid -->
         <template v-else>
-          <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+          <div class="grid grid-cols-5 gap-3">
             <button
               v-for="item in visibleItems"
               :key="item.id"
