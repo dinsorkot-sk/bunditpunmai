@@ -91,7 +91,7 @@ function retry() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Choose Avatar" >
+  <UModal v-model:open="open" title="Choose Avatar" :ui="{ content: 'max-w-4xl' }">
     <template #body>
       <!-- Search + count -->
       <div class="flex items-center gap-3">
@@ -141,7 +141,7 @@ function retry() {
 
         <!-- Grid -->
         <template v-else>
-          <div class="grid grid-cols-5 gap-3">
+          <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
             <button
               v-for="item in visibleItems"
               :key="item.id"
