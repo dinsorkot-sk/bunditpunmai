@@ -32,7 +32,7 @@ async function loadMore() {
   loadingMore.value = true
   try {
     offset.value += PAGE_SIZE
-    await fetchCourses({ limit: PAGE_SIZE, offset: offset.value })
+    await fetchCourses({ limit: PAGE_SIZE, offset: offset.value, status: 'published' })
 
     const newPosts = courses.value.map(mapCourse)
     if (newPosts.length < PAGE_SIZE) {
@@ -45,7 +45,7 @@ async function loadMore() {
 }
 
 onMounted(async () => {
-  await fetchCourses({ limit: PAGE_SIZE, offset: 0 })
+  await fetchCourses({ limit: PAGE_SIZE, offset: 0, status: 'published' })
   coursePosts.value = courses.value.map(mapCourse)
   if (courses.value.length < PAGE_SIZE) {
     hasMore.value = false

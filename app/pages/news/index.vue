@@ -32,7 +32,7 @@ async function loadMore() {
   loadingMore.value = true
   try {
     offset.value += PAGE_SIZE
-    await fetchBlogs({ limit: PAGE_SIZE, offset: offset.value })
+    await fetchBlogs({ limit: PAGE_SIZE, offset: offset.value, status: 'published' })
 
     const newPosts = blogs.value.map(mapNews)
     if (newPosts.length < PAGE_SIZE) {
@@ -45,7 +45,7 @@ async function loadMore() {
 }
 
 onMounted(async () => {
-  await fetchBlogs({ limit: PAGE_SIZE, offset: 0 })
+  await fetchBlogs({ limit: PAGE_SIZE, offset: 0, status: 'published' })
   newsPosts.value = blogs.value.map(mapNews)
   if (blogs.value.length < PAGE_SIZE) {
     hasMore.value = false

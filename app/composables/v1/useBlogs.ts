@@ -15,11 +15,11 @@ export function useBlogs() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchBlogs = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchBlogs = async (params: { limit?: number; offset?: number; status?: string; authorId?: number } = {}) => {
     loading.value = true
     try {
       const result = await $fetch<ApiBlog[]>('/api/v1/blogs', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+        query: { limit: params.limit ?? 20, offset: params.offset ?? 0, ...(params.status ? { status: params.status } : {}), ...(params.authorId ? { authorId: params.authorId } : {}) }
       })
       blogs.value = result
       total.value = result.length

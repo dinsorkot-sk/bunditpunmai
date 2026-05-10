@@ -15,11 +15,11 @@ export function useCourses() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchCourses = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchCourses = async (params: { limit?: number; offset?: number; status?: string } = {}) => {
     loading.value = true
     try {
       const result = await $fetch<ApiCourse[]>('/api/v1/courses', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+        query: { limit: params.limit ?? 20, offset: params.offset ?? 0, ...(params.status ? { status: params.status } : {}) }
       })
       courses.value = result
       total.value = result.length

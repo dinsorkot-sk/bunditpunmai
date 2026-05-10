@@ -24,6 +24,12 @@ defineRouteMeta({
         schema: { type: 'integer' },
         description: 'Filter by author ID',
       },
+      {
+        in: 'query',
+        name: 'status',
+        schema: { type: 'string' },
+        description: 'Filter by status (e.g. published, draft, archived)',
+      },
     ],
     responses: {
       200: { description: 'Blogs list' },
@@ -48,9 +54,19 @@ export default defineEventHandler(async (event) => {
     createdAt: blogs.createdAt,
   }).from(blogs)
 
+  const conditions = []
+
   if (query.authorId) {
-    return await baseQuery.where(eq(blogs.authorId, Number(query.authorId))).limit(limit).offset(offset)
+    conditions.push(eq(blogs.authorId, Number(query.authorId)))
   }
 
-  return await baseQuery.limit(limit).offset(offset)
+  if (query.status) {
+    conditions.push(eq(blogs.status, String(query.status)))
+  }
+
+  const filteredQuery = conditions.length > 0
+    ? baseQuery.where(...conditions)
+    : baseQuery
+
+  return await filteredQuery.limit(limit).offset(offset)
 })
