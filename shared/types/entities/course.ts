@@ -7,6 +7,7 @@ export interface Course {
   title: string
   description: string
   content: string
+  image?: string
   likes: number
   status: string
   instructorId: number
@@ -18,6 +19,7 @@ export interface NewCourse {
   title: string
   description: string
   content: string
+  image?: string
   likes?: number
   status: string
   instructorId: number
@@ -29,6 +31,7 @@ export interface CourseForm {
   title: string
   description: string
   content: string
+  image?: string
   status: string
   instructorId: number
   likes?: number

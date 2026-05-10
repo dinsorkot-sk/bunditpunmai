@@ -3,6 +3,7 @@ interface ApiBlog {
   title: string
   description: string
   content: string
+  image?: string
   likes: number
   status: string
   authorId: number
@@ -32,11 +33,11 @@ export function useBlogs() {
     return $fetch(`/api/v1/blogs/${id}`)
   }
 
-  const createBlog = async (data: { title: string; description: string; content: string; status: string; authorId: number; likes?: number }) => {
+  const createBlog = async (data: { title: string; description: string; content: string; status: string; authorId: number; image?: string; likes?: number }) => {
     return $fetch('/api/v1/blogs', { method: 'POST', body: data })
   }
 
-  const updateBlog = async (id: number, data: { title?: string; description?: string; content?: string; status?: string; authorId?: number; likes?: number }) => {
+  const updateBlog = async (id: number, data: { title?: string; description?: string; content?: string; status?: string; authorId?: number; image?: string; likes?: number }) => {
     return $fetch(`/api/v1/blogs/${id}`, { method: 'PATCH', body: data })
   }
 

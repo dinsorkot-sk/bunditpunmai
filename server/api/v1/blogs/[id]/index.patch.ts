@@ -6,6 +6,7 @@ interface PartialBlogForm {
   title?: string
   description?: string
   content?: string
+  image?: string
   likes?: number
   status?: string
   authorId?: number

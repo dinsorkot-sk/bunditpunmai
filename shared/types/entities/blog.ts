@@ -7,6 +7,7 @@ export interface Blog {
   title: string
   description: string
   content: string
+  image?: string
   likes: number
   status: string
   authorId: number
@@ -18,6 +19,7 @@ export interface NewBlog {
   title: string
   description: string
   content: string
+  image?: string
   likes?: number
   status: string
   authorId: number
@@ -29,6 +31,7 @@ export interface BlogForm {
   title: string
   description: string
   content: string
+  image?: string
   status: string
   authorId: number
   likes?: number

@@ -6,6 +6,7 @@ export const courses = sqliteTable('courses', {
   title: text().notNull(),
   description: text().notNull(),
   content: text().notNull(),
+  image: text(),
   likes: integer().notNull().default(0),
   status: text().notNull(),
   instructorId: integer().notNull().references(() => users.id),

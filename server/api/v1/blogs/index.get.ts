@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
     title: blogs.title,
     description: blogs.description,
     content: blogs.content,
+    image: blogs.image,
     likes: blogs.likes,
     status: blogs.status,
     authorId: blogs.authorId,

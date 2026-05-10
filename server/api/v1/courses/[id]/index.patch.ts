@@ -6,6 +6,7 @@ interface PartialCourseForm {
   title?: string
   description?: string
   content?: string
+  image?: string
   likes?: number
   status?: string
   instructorId?: number

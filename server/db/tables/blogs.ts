@@ -6,6 +6,7 @@ export const blogs = sqliteTable('blogs', {
   title: text().notNull(),
   description: text().notNull(),
   content: text().notNull(),
+  image: text(),
   likes: integer().notNull().default(0),
   status: text().notNull(),
   authorId: integer().notNull().references(() => users.id),

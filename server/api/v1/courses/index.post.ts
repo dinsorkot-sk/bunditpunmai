@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
     title: body.title,
     description: body.description,
     content: body.content,
+    image: body.image || null,
     likes: body.likes || 0,
     status: body.status,
     instructorId: body.instructorId,

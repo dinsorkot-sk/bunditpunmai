@@ -3,6 +3,7 @@ interface ApiCourse {
   title: string
   description: string
   content: string
+  image?: string
   likes: number
   status: string
   instructorId: number
@@ -32,11 +33,11 @@ export function useCourses() {
     return $fetch(`/api/v1/courses/${id}`)
   }
 
-  const createCourse = async (data: { title: string; description: string; content: string; status: string; instructorId: number; likes?: number }) => {
+  const createCourse = async (data: { title: string; description: string; content: string; status: string; instructorId: number; image?: string; likes?: number }) => {
     return $fetch('/api/v1/courses', { method: 'POST', body: data })
   }
 
-  const updateCourse = async (id: number, data: { title?: string; description?: string; content?: string; status?: string; instructorId?: number; likes?: number }) => {
+  const updateCourse = async (id: number, data: { title?: string; description?: string; content?: string; status?: string; instructorId?: number; image?: string; likes?: number }) => {
     return $fetch(`/api/v1/courses/${id}`, { method: 'PATCH', body: data })
   }
 
