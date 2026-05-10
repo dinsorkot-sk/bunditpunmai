@@ -4,24 +4,17 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 const route = useRoute()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-
-// Compute current path without locale prefix, so we can build locale paths correctly
-const cleanPath = computed(() => {
-  if (route.path === '/en' || route.path.startsWith('/en/')) {
-    return route.path.replace(/^\/en/, '') || '/'
-  }
-  return route.path
-})
+const switchLocalePath = useSwitchLocalePath()
 
 const localeSwitchItems = computed(() => [
   {
     label: '🇹🇭 ภาษาไทย',
-    to: localePath(cleanPath.value, 'th'),
+    to: switchLocalePath('th'),
     disabled: locale.value === 'th',
   },
   {
     label: '🇬🇧 English',
-    to: localePath(cleanPath.value, 'en'),
+    to: switchLocalePath('en'),
     disabled: locale.value === 'en',
   },
 ])
