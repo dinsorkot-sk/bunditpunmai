@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { blogs } from '#server/db/tables/blogs'
-import { eq } from 'drizzle-orm'
+import { blogTranslations } from '#server/db/tables/blog_translations'
+import { eq, and, sql } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -12,6 +13,12 @@ defineRouteMeta({
         name: 'id',
         required: true,
         schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'locale',
+        schema: { type: 'string' },
+        description: 'Locale for translated content (e.g. "en")',
       },
     ],
     responses: {
@@ -32,16 +39,28 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const result = await db.select({
+  const query = getQuery(event)
+  const locale = getLocale(query)
+
+  const baseQuery = db.select({
     id: blogs.id,
-    title: blogs.title,
-    description: blogs.description,
-    content: blogs.content,
+    title: locale ? sql`COALESCE(${blogTranslations.title}, ${blogs.title})` : blogs.title,
+    description: locale ? sql`COALESCE(${blogTranslations.description}, ${blogs.description})` : blogs.description,
+    content: locale ? sql`COALESCE(${blogTranslations.content}, ${blogs.content})` : blogs.content,
     likes: blogs.likes,
     status: blogs.status,
     authorId: blogs.authorId,
     createdAt: blogs.createdAt,
-  }).from(blogs).where(eq(blogs.id, blogId)).limit(1)
+  }).from(blogs)
+
+  if (locale) {
+    baseQuery.leftJoin(blogTranslations, and(
+      eq(blogs.id, blogTranslations.blogId),
+      eq(blogTranslations.locale, locale)
+    ))
+  }
+
+  const result = await baseQuery.where(eq(blogs.id, blogId)).limit(1)
 
   if (result.length === 0) {
     throw createError({

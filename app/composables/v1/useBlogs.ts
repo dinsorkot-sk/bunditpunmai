@@ -14,12 +14,12 @@ export function useBlogs() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchBlogs = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchBlogs = async (params: { limit?: number; offset?: number; locale?: string } = {}) => {
     loading.value = true
     try {
-      const result = await $fetch<ApiBlog[]>('/api/v1/blogs', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
-      })
+      const query: Record<string, any> = { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+      if (params.locale) query.locale = params.locale
+      const result = await $fetch<ApiBlog[]>('/api/v1/blogs', { query })
       blogs.value = result
       total.value = result.length
     }
@@ -28,8 +28,9 @@ export function useBlogs() {
     }
   }
 
-  const getBlog = async (id: number) => {
-    return $fetch(`/api/v1/blogs/${id}`)
+  const getBlog = async (id: number, locale?: string) => {
+    const query = locale ? { locale } : undefined
+    return $fetch(`/api/v1/blogs/${id}`, { query })
   }
 
   const createBlog = async (data: { title: string; description: string; content: string; status: string; authorId: number; likes?: number }) => {

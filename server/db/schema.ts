@@ -4,6 +4,7 @@ export { permissions } from '#server/db/tables/permissions';
 export { userRoles } from '#server/db/tables/user_roles';
 export { rolePermissions } from '#server/db/tables/role_permissions';
 export { posts } from '#server/db/tables/posts';
+export { blogs } from '#server/db/tables/blogs';
 export { comments } from '#server/db/tables/comments';
 export { tags } from '#server/db/tables/tags';
 export { postTags } from '#server/db/tables/post_tags';

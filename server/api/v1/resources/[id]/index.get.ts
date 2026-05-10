@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { resources } from '#server/db/tables/resources'
-import { eq } from 'drizzle-orm'
+import { resourceTranslations } from '#server/db/tables/resource_translations'
+import { eq, and, sql } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -12,6 +13,12 @@ defineRouteMeta({
         name: 'id',
         required: true,
         schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'locale',
+        schema: { type: 'string' },
+        description: 'Locale for translated content (e.g. "en")',
       },
     ],
     responses: {
@@ -32,13 +39,25 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const result = await db.select({
+  const query = getQuery(event)
+  const locale = getLocale(query)
+
+  const baseQuery = db.select({
     id: resources.id,
-    title: resources.title,
-    description: resources.description,
+    title: locale ? sql`COALESCE(${resourceTranslations.title}, ${resources.title})` : resources.title,
+    description: locale ? sql`COALESCE(${resourceTranslations.description}, ${resources.description})` : resources.description,
     url: resources.url,
     createdAt: resources.createdAt,
-  }).from(resources).where(eq(resources.id, resourceId)).limit(1)
+  }).from(resources)
+
+  if (locale) {
+    baseQuery.leftJoin(resourceTranslations, and(
+      eq(resources.id, resourceTranslations.resourceId),
+      eq(resourceTranslations.locale, locale)
+    ))
+  }
+
+  const result = await baseQuery.where(eq(resources.id, resourceId)).limit(1)
 
   if (result.length === 0) {
     throw createError({

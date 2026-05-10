@@ -14,12 +14,12 @@ export function useCourses() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchCourses = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchCourses = async (params: { limit?: number; offset?: number; locale?: string } = {}) => {
     loading.value = true
     try {
-      const result = await $fetch<ApiCourse[]>('/api/v1/courses', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
-      })
+      const query: Record<string, any> = { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+      if (params.locale) query.locale = params.locale
+      const result = await $fetch<ApiCourse[]>('/api/v1/courses', { query })
       courses.value = result
       total.value = result.length
     }
@@ -28,8 +28,9 @@ export function useCourses() {
     }
   }
 
-  const getCourse = async (id: number) => {
-    return $fetch(`/api/v1/courses/${id}`)
+  const getCourse = async (id: number, locale?: string) => {
+    const query = locale ? { locale } : undefined
+    return $fetch(`/api/v1/courses/${id}`, { query })
   }
 
   const createCourse = async (data: { title: string; description: string; content: string; status: string; instructorId: number; likes?: number }) => {

@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { images } from '#server/db/tables/images'
-import { eq } from 'drizzle-orm'
+import { imageTranslations } from '#server/db/tables/image_translations'
+import { eq, and, sql } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -12,6 +13,12 @@ defineRouteMeta({
         name: 'id',
         required: true,
         schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'locale',
+        schema: { type: 'string' },
+        description: 'Locale for translated altText (e.g. "en")',
       },
     ],
     responses: {
@@ -32,12 +39,24 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const result = await db.select({
+  const query = getQuery(event)
+  const locale = getLocale(query)
+
+  const baseQuery = db.select({
     id: images.id,
     url: images.url,
-    altText: images.altText,
+    altText: locale ? sql`COALESCE(${imageTranslations.altText}, ${images.altText})` : images.altText,
     createdAt: images.createdAt,
-  }).from(images).where(eq(images.id, imageId)).limit(1)
+  }).from(images)
+
+  if (locale) {
+    baseQuery.leftJoin(imageTranslations, and(
+      eq(images.id, imageTranslations.imageId),
+      eq(imageTranslations.locale, locale)
+    ))
+  }
+
+  const result = await baseQuery.where(eq(images.id, imageId)).limit(1)
 
   if (result.length === 0) {
     throw createError({

@@ -13,12 +13,12 @@ export function usePosts() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchPosts = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchPosts = async (params: { limit?: number; offset?: number; locale?: string } = {}) => {
     loading.value = true
     try {
-      const result = await $fetch<ApiPost[]>('/api/v1/posts', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
-      })
+      const query: Record<string, any> = { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+      if (params.locale) query.locale = params.locale
+      const result = await $fetch<ApiPost[]>('/api/v1/posts', { query })
       posts.value = result
       total.value = result.length
     }
@@ -27,8 +27,9 @@ export function usePosts() {
     }
   }
 
-  const getPost = async (id: number) => {
-    return $fetch(`/api/v1/posts/${id}`)
+  const getPost = async (id: number, locale?: string) => {
+    const query = locale ? { locale } : undefined
+    return $fetch(`/api/v1/posts/${id}`, { query })
   }
 
   const createPost = async (data: { title: string; content: string; status: string; authorId: number; likes?: number }) => {

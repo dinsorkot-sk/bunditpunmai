@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { StepperItem } from '@nuxt/ui'
+import { computed } from 'vue'
+
+const { t } = useI18n()
 
 interface Feature {
     title: string
@@ -7,111 +10,111 @@ interface Feature {
     icon: string
 }
 
-const features = ref<Feature[]>([
+const features = computed<Feature[]>(() => [
     {
-        title: 'ระยะเวลาการรับสมัคร',
-        description: 'November 1, 2023 - January 15, 2024',
+        title: t('admissions.period'),
+        description: t('admissions.period_desc'),
         icon: 'i-lucide-calendar-days',
     },
     {
-        title: 'คัดเลือก',
-        description: 'January 20 - February 10, 2024',
+        title: t('admissions.selection'),
+        description: t('admissions.selection_desc'),
         icon: 'i-lucide-users',
     },
     {
-        title: 'เริ่มอบรม',
-        description: 'February - March 2024 (varies by course)',
+        title: t('admissions.training_start'),
+        description: t('admissions.training_start_desc'),
         icon: 'i-lucide-graduation-cap',
     },
 ])
 
-const qualifications = ref([
+const qualifications = computed(() => [
     {
-        label: 'ปริญญาตรี',
-        description: 'สำเร็จการศึกษาในระดับปริญญาตรีหรือสูงกว่าในสาขาที่เกี่ยวข้อง (ข้อกำหนดเฉพาะแตกต่างกันไปในแต่ละหลักสูตร)',
+        label: t('admissions.qual_bachelor'),
+        description: t('admissions.qual_bachelor_desc'),
     },
     {
-        label: 'สำเร็จการศึกษาเมื่อไม่นานนี้',
-        description: 'สำเร็จการศึกษาภายใน 3 ปีที่ผ่านมาหรืออยู่ในปีสุดท้ายของการศึกษา',
+        label: t('admissions.qual_recent_graduate'),
+        description: t('admissions.qual_recent_graduate_desc'),
     },
     {
-        label: 'สัญชาติไทย',
-        description: 'เป็นพลเมืองไทยหรือมีใบอนุญาตที่จำเป็นในการศึกษาและทำงานในประเทศไทย',
+        label: t('admissions.qual_thai_nationality'),
+        description: t('admissions.qual_thai_nationality_desc'),
     },
     {
-        label: 'ความสามารถทางภาษา',
-        description: 'แสดงความสามารถทางภาษาไทย และ/หรือ ภาษาอังกฤษ (ขึ้นอยู่กับหลักสูตร)',
+        label: t('admissions.qual_language'),
+        description: t('admissions.qual_language_desc'),
     },
     {
-        label: 'ความมุ่งมั่น',
-        description: 'สามารถมุ่งมั่นกับโปรแกรมได้เต็มเวลาตลอดระยะเวลาที่กำหนดไว้',
+        label: t('admissions.qual_commitment'),
+        description: t('admissions.qual_commitment_desc'),
     },
 ])
 
-const documents = ref([
+const documents = computed(() => [
     {
         icon: 'i-lucide-file-text',
-        label: 'แบบฟอร์มใบสมัครที่สมบูรณ์',
-        description: 'กรอกแบบฟอร์มใบสมัครออนไลน์ให้ครบถ้วน',
+        label: t('admissions.doc_application'),
+        description: t('admissions.doc_application_desc'),
     },
     {
         icon: 'i-lucide-user',
-        label: 'CV/Resume',
-        description: 'ประวัติย่อล่าสุดที่เน้นด้านการศึกษา ทักษะ และประสบการณ์ที่เกี่ยวข้องของคุณ',
+        label: t('admissions.doc_cv'),
+        description: t('admissions.doc_cv_desc'),
     },
     {
         icon: 'i-lucide-book-open',
-        label: 'สำเนาผลการเรียนทางวิชาการ',
-        description: 'สำเนาผลการเรียนอย่างเป็นทางการจากมหาวิทยาลัยของคุณ',
+        label: t('admissions.doc_transcript'),
+        description: t('admissions.doc_transcript_desc'),
     },
     {
         icon: 'i-lucide-id-card',
-        label: 'สำเนาบัตรประชาชน/หนังสือเดินทาง',
-        description: 'เอกสารยืนยันตัวตนที่ยังไม่หมดอายุ',
+        label: t('admissions.doc_id'),
+        description: t('admissions.doc_id_desc'),
     },
     {
         icon: 'i-lucide-pen-tool',
-        label: 'คำชี้แจงส่วนตัว',
-        description: 'คำชี้แจงที่อธิบายถึงความสนใจของคุณในโปรแกรมนี้และว่าโปรแกรมนี้สอดคล้องกับเป้าหมายอาชีพของคุณอย่างไร (500–800 คำ)',
+        label: t('admissions.doc_statement'),
+        description: t('admissions.doc_statement_desc'),
     },
     {
         icon: 'i-lucide-mail',
-        label: 'จดหมายอ้างอิง',
-        description: 'จดหมายแนะนำอย่างน้อยหนึ่งฉบับจากผู้อ้างอิงทางวิชาการหรือวิชาชีพ',
+        label: t('admissions.doc_reference'),
+        description: t('admissions.doc_reference_desc'),
     },
 ])
 
-const stepperItems = ref<StepperItem[]>([
+const stepperItems = computed<StepperItem[]>(() => [
   {
-    title: 'การสมัครออนไลน์',
-    description: 'กรอกแบบฟอร์มใบสมัครออนไลน์และอัพโหลดเอกสารที่จำเป็นทั้งหมดผ่านใบสมัครที่ปลอดภัยของเรา',
+    title: t('admissions.step1_title'),
+    description: t('admissions.step1_desc'),
   },
   {
-    title: 'การตรวจสอบการสมัคร',
-    description: 'ทีมรับสมัครของเราจะตรวจสอบใบสมัครและเอกสารของคุณเพื่อให้แน่ใจว่าตรงตามข้อกำหนดคุณสมบัติ',
+    title: t('admissions.step2_title'),
+    description: t('admissions.step2_desc'),
   },
   {
-    title: 'แบบทดสอบประเมินผล',
-    description: 'ผู้สมัครที่มีคุณสมบัติจะได้รับเชิญให้ทำการทดสอบประเมินผลออนไลน์ที่เกี่ยวข้องกับหลักสูตรที่ตนเลือก'
+    title: t('admissions.step3_title'),
+    description: t('admissions.step3_desc'),
   },
   {
-    title: 'สัมภาษณ์',
-    description: 'ผู้สมัครที่ผ่านการคัดเลือกจะได้รับเชิญให้สัมภาษณ์แบบตัวต่อตัวหรือแบบเสมือนจริงกับคณาจารย์ของโครงการและตัวแทนจากอุตสาหกรรม'
+    title: t('admissions.step4_title'),
+    description: t('admissions.step4_desc'),
   },
   {
-    title: 'แบบทดสอบประเมินผล',
-    description: 'การตัดสินใจขั้นสุดท้ายจะแจ้งให้ผู้สมัครทุกคนทราบ โดยนักเรียนที่ผ่านการคัดเลือกจะได้รับ คำแนะนำในการลงทะเบียน'
-  }
+    title: t('admissions.step5_title'),
+    description: t('admissions.step5_desc'),
+  },
 ])
 </script>
 
 <template>
     <UPage>
-        <UPageSection title="การรับสมัคร"
-            description="เข้าร่วมโครงการฝึกอบรมชั้นนำของประเทศไทยสำหรับอุตสาหกรรม New Growth Engine ขณะนี้เปิดรับสมัครสำหรับกลุ่มปี 2024 แล้ว"
+        <UPageSection :title="$t('admissions.title')"
+            :description="$t('admissions.description')"
             orientation="horizontal" />
 
-        <UPageSection title="กำหนดเวลาการสมัคร">
+        <UPageSection :title="$t('admissions.timeline_title')">
             <div class="flex flex-col gap-8 lg:gap-y-16 sm:grid sm:grid-cols-2 lg:grid-cols-3">
                 <UPageCard v-for="value in features" :key="value.title" :title="value.title"
                     :description="value.description" :icon="value.icon" to="https://tailwindcss.com/docs/v4-beta"
@@ -119,11 +122,10 @@ const stepperItems = ref<StepperItem[]>([
             </div>
         </UPageSection>
 
-        <UPageSection title="คุณสมบัติผู้เข้าร่วม">
+        <UPageSection :title="$t('admissions.qualifications_title')">
             <UPageGrid class="lg:grid-cols-2">
-                <!-- คุณสมบัติทั่วไป -->
                 <div class="flex flex-col gap-4">
-                    <h3 class="text-base font-semibold text-highlighted">คุณสมบัติทั่วไป</h3>
+                    <h3 class="text-base font-semibold text-highlighted">{{ $t('admissions.general_requirements') }}</h3>
                     <div class="flex flex-col gap-3">
                         <div v-for="(item, index) in qualifications" :key="index" class="flex items-start gap-3">
                             <UIcon name="i-lucide-circle-check" class="text-primary mt-0.5 shrink-0 size-5" />
@@ -134,12 +136,11 @@ const stepperItems = ref<StepperItem[]>([
                         </div>
                     </div>
                     <UAlert icon="i-lucide-info" color="warning" variant="soft"
-                        description="หลักสูตรบางหลักสูตรอาจมีข้อกำหนดเฉพาะเพิ่มเติม โปรดตรวจสอบรายละเอียดในหน้าหลักสูตรแต่ละหลักสูตร" />
+                        :description="$t('admissions.alert_note')" />
                 </div>
 
-                <!-- เอกสารที่ต้องการ -->
                 <div class="flex flex-col gap-4">
-                    <h3 class="text-base font-semibold text-highlighted">เอกสารที่ต้องการ</h3>
+                    <h3 class="text-base font-semibold text-highlighted">{{ $t('admissions.required_documents') }}</h3>
                     <div class="flex flex-col gap-3">
                         <div v-for="(doc, index) in documents" :key="index" class="flex items-start gap-3">
                             <UIcon :name="doc.icon" class="text-primary mt-0.5 shrink-0 size-5" />
@@ -153,7 +154,7 @@ const stepperItems = ref<StepperItem[]>([
             </UPageGrid>
         </UPageSection>
 
-        <UPageSection title="ขั้นตอนการสมัคร">
+        <UPageSection :title="$t('admissions.steps_title')">
             <UStepper orientation="vertical" :items="stepperItems" class="justify-center" />
         </UPageSection>
     </UPage>

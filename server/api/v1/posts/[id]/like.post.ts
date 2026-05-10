@@ -54,5 +54,5 @@ export default defineEventHandler(async (event) => {
     .where(eq(posts.id, postId))
     .returning({ likes: posts.likes })
 
-  return { likes: result[0].likes }
+  return { likes: result[0]!.likes }
 })

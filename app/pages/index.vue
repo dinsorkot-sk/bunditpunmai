@@ -3,67 +3,70 @@ import type { ButtonProps, BlogPostProps } from '@nuxt/ui'
 import { useCourses } from '~/composables/v1/useCourses'
 import { useBlogs } from '~/composables/v1/useBlogs'
 
-const links = ref<ButtonProps[]>([
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
+const links = computed<ButtonProps[]>(() => [
   {
-    label: 'เข้าร่วมโครงการ',
-    to: '/docs/getting-started',
+    label: t('home.hero_join'),
+    to: localePath('/about'),
     trailingIcon: 'i-lucide-arrow-right',
     color: 'neutral'
   },
   {
-    label: 'ดูรายละเอียด',
-    to: '/docs/components/app',
+    label: t('home.hero_details'),
+    to: localePath('/admissions'),
     color: 'neutral',
     variant: 'subtle',
   }
 ])
 
-const features = ref([
+const features = computed(() => [
   {
-    title: 'หลักสูตรที่ขับเคลื่อนโดยอุตสาหกรรม',
-    description: 'หลักสูตรที่ออกแบบร่วมกับผู้นำในอุตสาหกรรมเพื่อตอบสนองความต้องการของโลกแห่งความเป็นจริงและเตรียมนักศึกษาให้พร้อมสำหรับการจ้างงานทันที',
+    title: t('home.feature_industry'),
+    description: t('home.feature_industry_desc'),
     icon: 'i-lucide-building-2',
   },
   {
-    title: 'อบรมโดยผู้เชี่ยวชาญ',
-    description: 'เรียนรู้จากผู้เชี่ยวชาญและนักวิชาการชั้นนำที่มีประสบการณ์มากมายในภาคเทคโนโลยีที่กำลังเติบโตของประเทศไทย',
+    title: t('home.feature_expert'),
+    description: t('home.feature_expert_desc'),
     icon: 'i-lucide-user-check',
   },
   {
-    title: 'ได้รับประกาศนียบัตร',
-    description: 'ได้รับประสบการณ์จริงกับเทคโนโลยีล่าสุดที่ขับเคลื่อนการเปลี่ยนแปลงทางเศรษฐกิจของประเทศไทย',
+    title: t('home.feature_certificate'),
+    description: t('home.feature_certificate_desc'),
     icon: 'i-lucide-award',
   },
   {
-    title: 'เทคโนโลยีล้ำสมัย',
-    description: 'มุ่งเน้นการเรียนรู้ผ่านโครงการที่จำลองสถานการณ์จริงในที่ทำงาน เพื่อพัฒนาทักษะและสร้างพอร์ตโฟลิโอให้โดดเด่น',
+    title: t('home.feature_technology'),
+    description: t('home.feature_technology_desc'),
     icon: 'i-lucide-cpu',
   },
   {
-    title: 'การเรียนรู้เชิงปฏิบัติ',
-    description: 'พัฒนาทักษะการคิดวิเคราะห์และการแก้ปัญหาซึ่งจำเป็นต่อการขับเคลื่อนการสร้างสรรค์นวัตกรรมในทุก ๆ ทักษะที่จำเป็นต่อ การขับเคลื่อนการสร้างสรรค์นวัตกรรมในทุก ๆ',
+    title: t('home.feature_practice'),
+    description: t('home.feature_practice_desc'),
     icon: 'i-lucide-wrench',
   },
   {
-    title: 'แนวคิดเชิงนวัตกรรม',
-    description: 'พัฒนาทักษะการคิดวิเคราะห์และการแก้ปัญหาซึ่งจำเป็นต่อการขับเคลื่อนการสร้างสรรค์นวัตกรรมในทุก ๆ ทักษะที่จำเป็นต่อ การขับเคลื่อนการสร้างสรรค์นวัตกรรมในทุก ๆ',
+    title: t('home.feature_innovation'),
+    description: t('home.feature_innovation_desc'),
     icon: 'i-lucide-lightbulb',
   }
 ])
 
-const linkCourses = ref<ButtonProps[]>([
+const linkCourses = computed<ButtonProps[]>(() => [
   {
-    label: 'ทั้งหมด',
+    label: t('common.view_all'),
     trailingIcon: 'i-lucide-chevron-right',
-    to: '/courses',
+    to: localePath('/courses'),
   }
 ])
 
-const linkNews = ref<ButtonProps[]>([
+const linkNews = computed<ButtonProps[]>(() => [
   {
-    label: 'ทั้งหมด',
+    label: t('common.view_all'),
     trailingIcon: 'i-lucide-chevron-right',
-    to: '/news',
+    to: localePath('/news'),
   }
 ])
 
@@ -76,49 +79,51 @@ const coursePosts = ref<BlogPostProps[]>([])
 const blogPosts = ref<BlogPostProps[]>([])
 
 onMounted(async () => {
-  // Fetch courses (limit 3, only published)
-  await fetchCourses({ limit: 3 })
+  const currentLocale = locale.value !== 'th' ? locale.value : undefined
+
+  // Fetch courses (limit 3, only published) with locale
+  await fetchCourses({ limit: 3, locale: currentLocale })
   coursePosts.value = courses.value
-    .filter(c => c.status === 'published')
-    .map(c => ({
+    .filter((c: any) => c.status === 'published')
+    .map((c: any) => ({
       title: c.title,
       description: c.description,
       date: c.createdAt,
       image: 'https://picsum.photos/800/600?random=course',
-      to: `/courses/${c.id}`,
+      to: localePath(`/courses/${c.id}`),
     }))
 
   // Fallback: if no published courses, show without filtering
   if (coursePosts.value.length === 0) {
-    coursePosts.value = courses.value.slice(0, 3).map(c => ({
+    coursePosts.value = courses.value.slice(0, 3).map((c: any) => ({
       title: c.title,
       description: c.description,
       date: c.createdAt,
       image: 'https://picsum.photos/800/600?random=course',
-      to: `/courses/${c.id}`,
+      to: localePath(`/courses/${c.id}`),
     }))
   }
 
-  // Fetch blogs (limit 3, only published)
-  await fetchBlogs({ limit: 3 })
+  // Fetch blogs (limit 3, only published) with locale
+  await fetchBlogs({ limit: 3, locale: currentLocale })
   blogPosts.value = blogs.value
-    .filter(b => b.status === 'published')
-    .map(b => ({
+    .filter((b: any) => b.status === 'published')
+    .map((b: any) => ({
       title: b.title,
       description: b.description,
       date: b.createdAt,
       image: 'https://picsum.photos/800/600?random=blog',
-      to: `/news/${b.id}`,
+      to: localePath(`/news/${b.id}`),
     }))
 
   // Fallback: if no published blogs, show without filtering
   if (blogPosts.value.length === 0) {
-    blogPosts.value = blogs.value.slice(0, 3).map(b => ({
+    blogPosts.value = blogs.value.slice(0, 3).map((b: any) => ({
       title: b.title,
       description: b.description,
       date: b.createdAt,
       image: 'https://picsum.photos/800/600?random=blog',
-      to: `/news/${b.id}`,
+      to: localePath(`/news/${b.id}`),
     }))
   }
 })
@@ -126,26 +131,23 @@ onMounted(async () => {
 
 <template>
   <UPage>
-    <UPageSection title="โครงการผลิตบัณฑิตพันธุ์ใหม่ 2567"
-      description="สร้างคนที่มีสมรรถนะสูงสำหรับอุตสาหกรรม New Growth Engine ตามนโยบาย Thailand 4.0 และปฏิรูปการอุดมศึกษาไทย"
+    <UPageSection :title="$t('home.hero_title')" :description="$t('home.hero_description')"
       orientation="horizontal" :links="links">
-      <img src="https://bunditpunmai-mju.com/img/IMG_2305.png"  alt="Illustration" class="w-full rounded-lg"
+      <img src="https://bunditpunmai-mju.com/img/IMG_2305.png" alt="Illustration" class="w-full rounded-lg"
         loading="lazy" />
     </UPageSection>
 
+    <UPageSection :title="$t('home.goal_title')" :description="$t('home.goal_description')" />
 
-    <UPageSection title="เป้าหมายของเรา"
-      description="เพื่อสร้างบุคลากรที่มีประสิทธิภาพสูงในอุตสาหกรรม New Growth Engine ตามนโยบายไทยแลนด์ 4.0 และปฏิรูปการศึกษาระดับอุดมศึกษาของไทย โดยพัฒนาบัณฑิตให้มีทักษะที่ล้ำสมัย พร้อมที่จะขับเคลื่อนการสร้างสรรค์นวัตกรรมและการเติบโตทางเศรษฐกิจ"/>
-
-    <UPageSection title="สิ่งที่จะได้รับจากโครงการ" :features="features" />
+    <UPageSection :title="$t('home.benefits_title')" :features="features" />
 
     <UPageSection>
-      <UPageHeader title="หลักสูตรแนะนำ" :links="linkCourses" class="border-none" />
+      <UPageHeader :title="$t('home.featured_courses')" :links="linkCourses" class="border-none" />
       <UBlogPosts :posts="coursePosts" />
     </UPageSection>
 
     <UPageSection>
-      <UPageHeader title="ข่าวและกิจกรรม" :links="linkNews" class="border-none" />
+      <UPageHeader :title="$t('home.news_and_events')" :links="linkNews" class="border-none" />
       <UBlogPosts :posts="blogPosts" />
     </UPageSection>
   </UPage>

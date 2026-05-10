@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const isAdmin = tokenPayload.role === 'admin' || tokenPayload.role === 'editor'
-  const isOwner = existing[0].authorId === tokenPayload.userId
+  const isOwner = existing[0]!.authorId === tokenPayload.userId
 
   // Regular users can only edit their own comments
   if (!isAdmin && !isOwner) {

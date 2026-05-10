@@ -32,7 +32,6 @@ export default defineNuxtConfig({
       { code: 'en', language: 'en-US', file: 'en.json', name: 'English' }
     ],
     strategy: 'prefix_except_default',
-    lazy: true,
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',

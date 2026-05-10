@@ -1,24 +1,28 @@
 <script setup lang="ts">
 const route = useRoute()
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
 const id = Number(route.params.id)
 
 const { data: post, pending, error } = await useAsyncData(
   `blog-${id}`,
-  () => $fetch(`/api/v1/blogs/${id}`)
+  () => $fetch(`/api/v1/blogs/${id}`, {
+    params: { locale: locale.value !== 'th' ? locale.value : undefined }
+  })
 )
 
 if (!post.value || error.value) {
-  throw createError({ statusCode: 404, statusMessage: 'ไม่พบบทความ' })
+  throw createError({ statusCode: 404, statusMessage: t('news.not_found') })
 }
 
 const formattedDate = computed(() => {
   if (!post.value?.createdAt) return ''
   try {
-    return new Date(post.value.createdAt).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
+    return new Date(post.value.createdAt).toLocaleDateString(
+      locale.value === 'th' ? 'th-TH' : 'en-US',
+      { year: 'numeric', month: 'long', day: 'numeric' }
+    )
   } catch {
     return post.value.createdAt
   }
@@ -34,9 +38,9 @@ const formattedDate = computed(() => {
         </div>
 
         <template v-else-if="post">
-          <ULink to="/news" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-default mb-6">
+          <ULink :to="localePath('/news')" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-default mb-6">
             <UIcon name="i-lucide-arrow-left" class="size-4" />
-            กลับไปหน้าข่าวสาร
+            {{ $t('news.back') }}
           </ULink>
 
           <article>

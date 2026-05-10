@@ -10,12 +10,12 @@ export function useVideos() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchVideos = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchVideos = async (params: { limit?: number; offset?: number; locale?: string } = {}) => {
     loading.value = true
     try {
-      const result = await $fetch<ApiVideo[]>('/api/v1/videos', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
-      })
+      const query: Record<string, any> = { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+      if (params.locale) query.locale = params.locale
+      const result = await $fetch<ApiVideo[]>('/api/v1/videos', { query })
       videos.value = result
       total.value = result.length
     }
@@ -24,8 +24,9 @@ export function useVideos() {
     }
   }
 
-  const getVideo = async (id: number) => {
-    return $fetch(`/api/v1/videos/${id}`)
+  const getVideo = async (id: number, locale?: string) => {
+    const query = locale ? { locale } : undefined
+    return $fetch(`/api/v1/videos/${id}`, { query })
   }
 
   const createVideo = async (data: FormData) => {

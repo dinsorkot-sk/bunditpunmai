@@ -1,49 +1,48 @@
 <script setup lang="ts">
-const cards = ref([
+const { t } = useI18n()
+const localePath = useLocalePath()
+
+const cards = computed(() => [
     {
-        title: 'เป้าหมาย ของเรา',
-        description: 'โครงการฝึกอบรมบัณฑิต Thailand 4.0 มีเป้าหมายเพื่อสร้างบุคลากรที่มีประสิทธิภาพสูงในอุตสาหกรรม New Growth Engine ตามนโยบาย Thailand 4.0 และปฏิรูปการศึกษาระดับอุดมศึกษาของไทย เรามุ่งมั่นที่จะเชื่อมช่องว่างระหว่างความรู้ทางวิชาการและความต้องการของอุตสาหกรรมโดยจัดให้มีการฝึกอบรมภาคปฏิบัติเกี่ยวกับเทคโนโลยีที่ล้ำสมัยและแนวทางปฏิบัติทางธุรกิจ \n\n โครงการของเราได้รับการออกแบบมาเพื่อผลิตบัณฑิตที่ไม่เพียงแต่เชี่ยวชาญด้านเทคนิคเท่านั้น แต่ยังมีความสามารถด้านการคิดวิเคราะห์ การแก้ปัญหา และการเป็นผู้ประกอบการที่จำเป็นในการขับเคลื่อนการสร้างสรรค์นวัตกรรมและการเติบโตทางเศรษฐกิจในอุตสาหกรรมหลักของประเทศไทยอีกด้วย',
+        title: t('about.our_goal'),
+        description: t('about.our_goal_desc'),
         icon: 'i-lucide-smile',
-        to: '/docs/getting-started/integrations/icons'
+        to: localePath('/docs/getting-started/integrations/icons')
     },
     {
-        title: 'วิสัยทัศน์ของเรา',
-        description: 'เราตั้งเป้าว่าประเทศไทยจะเป็นศูนย์กลางนวัตกรรมและความก้าวหน้าทางเทคโนโลยีในภูมิภาคเอเชียตะวันออกเฉียงใต้ โดยมีแรงงานที่มีทักษะสูงที่ขับเคลื่อนการเติบโตทางเศรษฐกิจและการพัฒนาอย่างยั่งยืนใน ทุกภาคส่วน \n\n ด้วยโครงการของเราตั้งเป้าที่จะมีส่วนสนับสนุนการเปลี่ยนแปลงประเทศไทยให้เป็นเศรษฐกิจที่ขับเคลื่อนด้วย คุณค่าซึ่งขับเคลื่อนด้วยนวัตกรรม เทคโนโลยี และความคิดสร้างสรรค์ สอดคล้องกับโมเดลเศรษฐกิจไทยแลนด์ 4.0 ของรัฐบาล',
+        title: t('about.vision'),
+        description: t('about.vision_desc'),
         icon: 'i-lucide-a-large-small',
-        to: '/docs/getting-started/integrations/fonts'
+        to: localePath('/docs/getting-started/integrations/fonts')
     }
 ])
 
-const features = ref([
+const features = computed(() => [
     {
-        title: 'พัฒนาทักษะให้พร้อมสำหรับอุตสาหกรรม',
-        description: 'เสริมทักษะและความรู้เชิงปฏิบัติให้แก่บัณฑิตที่สอดคล้องกับความต้องการของอุตสาหกรรม S-Curve เป้าหมายของประเทศไทย เพื่อให้มั่นใจได้ว่าจะมีการจ้างงานได้ทันทีและ เพิ่มมูลค่าให้กับนายจ้าง',
+        title: t('about.objective_skill'),
+        description: t('about.objective_skill_desc'),
         icon: 'i-lucide-smile',
     },
     {
-        title: 'ส่งเสริมนวัตกรรม',
-        description: 'ปลูกฝังทัศนคติด้านนวัตกรรมและการเป็นผู้ประกอบการให้กับผู้เข้าร่วม โดยส่งเสริมให้พวกเขาพัฒนาโซลูชั่นใหม่ๆ เพื่อแก้ไขปัญหาในโลกแห่งความเป็นจริง และสร้างผลิตภัณฑ์และบริการที่มีมูลค่าเพิ่ม',
+        title: t('about.objective_innovation'),
+        description: t('about.objective_innovation_desc'),
         icon: 'i-lucide-a-large-small',
     },
     {
-        title: 'เสริมสร้างความร่วมมือระหว่างอุตสาหกรรมและสถาบันการศึกษา',
-        description: 'สร้างความร่วมมือที่แข็งแกร่งระหว่างสถาบันการศึกษาและผู้เล่นในอุตสาหกรรมเพื่อให้แน่ใจว่าหลักสูตรมีความเกี่ยวข้องและมอบประสบการณ์จริงให้กับนักศึกษาผ่านการฝึกงานและโครงการความร่วมมือ',
+        title: t('about.objective_collaboration'),
+        description: t('about.objective_collaboration_desc'),
         icon: 'i-lucide-sun-moon',
     },
     {
-        title: 'สนับสนุนการเปลี่ยนแปลงทางเศรษฐกิจ',
-        description: 'มีส่วนร่วมในการเปลี่ยนแปลงทางเศรษฐกิจของประเทศไทยโดยผลิตบุคลากรที่มีทักษะซึ่งสามารถขับเคลื่อนการเติบโตในอุตสาหกรรมที่มีมูลค่าสูง และช่วยให้ประเทศหลุด พ้นจากกับดักรายได้ปานกลาง',
+        title: t('about.objective_economy'),
+        description: t('about.objective_economy_desc'),
         icon: 'i-lucide-sun-moon',
     },
 ])
-
-
 </script>
 <template>
     <UPage>
-        <UPageSection title="เกี่ยวกับโครงการของเรา"
-            description="สร้างกำลังแรงงานแห่งอนาคตของประเทศไทยผ่านการศึกษาเชิงนวัตกรรมและความร่วมมือทางอุตสาหกรรม"
-            orientation="horizontal" />
+        <UPageSection :title="$t('about.title')" :description="$t('site.description')" orientation="horizontal" />
 
         <UPageSection>
             <UPageGrid class="lg:grid-cols-2">
@@ -51,9 +50,9 @@ const features = ref([
             </UPageGrid>
         </UPageSection>
 
-        <UPageSection title="วัตถุประสงค์ของโครงการ" :features="features" :ui="{ features: 'lg:grid-cols-2' }" />
+        <UPageSection :title="$t('about.objectives_title')" :features="features" :ui="{ features: 'lg:grid-cols-2' }" />
 
-        <UPageSection title="ผู้สนับสนุนโครงการ">
+        <UPageSection :title="$t('about.sponsors_title')">
             <UPageLogos :items="[
                 'i-simple-icons-github',
                 'i-simple-icons-discord',

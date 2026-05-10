@@ -93,7 +93,7 @@ async function loadComments() {
 
       if (key) {
         if (!map[key]) map[key] = []
-        map[key].push(comment)
+        map[key]!.push(comment)
       }
     }
 

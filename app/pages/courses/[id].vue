@@ -1,24 +1,28 @@
 <script setup lang="ts">
 const route = useRoute()
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
 const id = Number(route.params.id)
 
 const { data: course, pending, error } = await useAsyncData(
   `course-${id}`,
-  () => $fetch(`/api/v1/courses/${id}`)
+  () => $fetch(`/api/v1/courses/${id}`, {
+    params: { locale: locale.value !== 'th' ? locale.value : undefined }
+  })
 )
 
 if (!course.value || error.value) {
-  throw createError({ statusCode: 404, statusMessage: 'ไม่พบหลักสูตร' })
+  throw createError({ statusCode: 404, statusMessage: t('courses.not_found') })
 }
 
 const formattedDate = computed(() => {
   if (!course.value?.createdAt) return ''
   try {
-    return new Date(course.value.createdAt).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
+    return new Date(course.value.createdAt).toLocaleDateString(
+      locale.value === 'th' ? 'th-TH' : 'en-US',
+      { year: 'numeric', month: 'long', day: 'numeric' }
+    )
   } catch {
     return course.value.createdAt
   }
@@ -34,9 +38,9 @@ const formattedDate = computed(() => {
         </div>
 
         <template v-else-if="course">
-          <ULink to="/courses" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-default mb-6">
+          <ULink :to="localePath('/courses')" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-default mb-6">
             <UIcon name="i-lucide-arrow-left" class="size-4" />
-            กลับไปหน้าหลักสูตร
+            {{ $t('courses.back') }}
           </ULink>
 
           <article>

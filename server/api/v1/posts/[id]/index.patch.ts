@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Post not found' })
   }
 
-  const post = existing[0]
+  const post = existing[0]!
 
   // Regular users can only edit their own posts
   const isAdmin = tokenPayload.role === 'admin' || tokenPayload.role === 'editor'

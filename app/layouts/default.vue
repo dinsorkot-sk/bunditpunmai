@@ -2,79 +2,81 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
 
-// ── Header Navigation ──
+// Compute current path without locale prefix, so we can build locale paths correctly
+const cleanPath = computed(() => {
+  if (route.path === '/en' || route.path.startsWith('/en/')) {
+    return route.path.replace(/^\/en/, '') || '/'
+  }
+  return route.path
+})
 
-const headerItems = computed<NavigationMenuItem[]>(() => [
+const localeSwitchItems = computed(() => [
   {
-    label: 'หน้าแรก',
-    to: '/',
-    active: route.path === '/',
+    label: '🇹🇭 ภาษาไทย',
+    to: localePath(cleanPath.value, 'th'),
+    disabled: locale.value === 'th',
   },
   {
-    label: 'หลักสูตร',
-    to: '/courses',
-    active: route.path.startsWith('/courses'),
-  },
-  {
-    label: 'การรับสมัคร',
-    to: '/admissions',
-    active: route.path.startsWith('/admissions'),
-  },
-  {
-    label: 'ข่าวสาร',
-    to: '/news',
-    active: route.path.startsWith('/news'),
-  },
-  {
-    label: 'แหล่งเรียนรู้',
-    to: '/e-learning',
-    active: route.path.startsWith('/e-learning'),
-  },
-  {
-    label: 'คำถามที่พบบ่อย',
-    to: '/faq',
-    active: route.path.startsWith('/faq'),
-  },
-  {
-    label: 'ติดต่อเรา',
-    to: '/contact',
-    active: route.path.startsWith('/contact'),
+    label: '🇬🇧 English',
+    to: localePath(cleanPath.value, 'en'),
+    disabled: locale.value === 'en',
   },
 ])
 
-// ── Footer Navigation ──
+// ── Header Navigation (localized) ──
 
-const footerItems: NavigationMenuItem[] = [
+const headerItems = computed<NavigationMenuItem[]>(() => [
   {
-    label: 'หน้าแรก',
-    to: '/',
+    label: t('nav.home'),
+    to: localePath('/'),
+    active: route.path === localePath('/'),
   },
   {
-    label: 'หลักสูตร',
-    to: '/courses',
+    label: t('nav.courses'),
+    to: localePath('/courses'),
+    active: route.path.startsWith(localePath('/courses')),
   },
   {
-    label: 'การรับสมัคร',
-    to: '/admissions',
+    label: t('nav.admissions'),
+    to: localePath('/admissions'),
+    active: route.path.startsWith(localePath('/admissions')),
   },
   {
-    label: 'ข่าวสาร',
-    to: '/news',
+    label: t('nav.news'),
+    to: localePath('/news'),
+    active: route.path.startsWith(localePath('/news')),
   },
   {
-    label: 'แหล่งเรียนรู้',
-    to: '/e-learning',
+    label: t('nav.e_learning'),
+    to: localePath('/e-learning'),
+    active: route.path.startsWith(localePath('/e-learning')),
   },
   {
-    label: 'คำถามที่พบบ่อย',
-    to: '/faq',
+    label: t('nav.faq'),
+    to: localePath('/faq'),
+    active: route.path.startsWith(localePath('/faq')),
   },
   {
-    label: 'ติดต่อเรา',
-    to: '/contact',
+    label: t('nav.contact'),
+    to: localePath('/contact'),
+    active: route.path.startsWith(localePath('/contact')),
   },
-]
+])
+
+// ── Footer Navigation (localized) ──
+
+const footerItems = computed<NavigationMenuItem[]>(() => [
+  { label: t('nav.home'), to: localePath('/') },
+  { label: t('nav.courses'), to: localePath('/courses') },
+  { label: t('nav.admissions'), to: localePath('/admissions') },
+  { label: t('nav.news'), to: localePath('/news') },
+  { label: t('nav.e_learning'), to: localePath('/e-learning') },
+  { label: t('nav.faq'), to: localePath('/faq') },
+  { label: t('nav.contact'), to: localePath('/contact') },
+])
 
 // ── Social Media (Footer) ──
 
@@ -93,13 +95,26 @@ const socialLinks: SocialLink[] = [
 </script>
 
 <template>
-  <UHeader title="โครงการผลิตบัณฑิตพันธ์ใหม่" to="/">
+  <UHeader :title="$t('site.title')" :to="localePath('/')">
     <UNavigationMenu :items="headerItems" />
 
     <template #right>
+      <!-- Locale Switcher -->
+      <UDropdownMenu :items="localeSwitchItems">
+        <UButton
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          class="px-2"
+          trailing-icon="i-lucide-chevron-down"
+        >
+          {{ locale === 'th' ? '🇹🇭 ภาษาไทย' : '🇬🇧 English' }}
+        </UButton>
+      </UDropdownMenu>
+
       <UColorModeButton />
 
-      <UTooltip text="Facebook" :kbds="['meta', '1']">
+      <UTooltip :text="$t('site.subtitle')" :kbds="['meta', '1']">
         <UButton
           color="neutral" variant="ghost"
           to="https://www.facebook.com/bunditpunmai.mju"
@@ -128,8 +143,8 @@ const socialLinks: SocialLink[] = [
   <UFooter>
     <template #left>
       <p class="text-muted text-sm">
-        &copy; {{ new Date().getFullYear() }} โครงการ BunditPunMai
-        <span class="hidden sm:inline">&mdash; มหาวิทยาลัยแม่โจ้</span>
+        &copy; {{ new Date().getFullYear() }} {{ $t('site.subtitle') }}
+        <span class="hidden sm:inline">&mdash; {{ $t('site.university') }}</span>
       </p>
     </template>
 

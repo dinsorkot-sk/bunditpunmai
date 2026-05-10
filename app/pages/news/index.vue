@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useBlogs } from '~/composables/v1/useBlogs'
 
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
 interface NewsCard {
   title: string
   description: string
@@ -23,7 +26,7 @@ function mapNews(item: { id: number; title: string; description: string; created
     description: item.description,
     date: item.createdAt,
     image: 'https://picsum.photos/800/600?random=news',
-    to: `/news/${item.id}`,
+    to: localePath(`/news/${item.id}`),
   }
 }
 
@@ -32,7 +35,7 @@ async function loadMore() {
   loadingMore.value = true
   try {
     offset.value += PAGE_SIZE
-    await fetchBlogs({ limit: PAGE_SIZE, offset: offset.value })
+    await fetchBlogs({ limit: PAGE_SIZE, offset: offset.value, locale: locale.value !== 'th' ? locale.value : undefined })
 
     const newPosts = blogs.value.map(mapNews)
     if (newPosts.length < PAGE_SIZE) {
@@ -45,7 +48,7 @@ async function loadMore() {
 }
 
 onMounted(async () => {
-  await fetchBlogs({ limit: PAGE_SIZE, offset: 0 })
+  await fetchBlogs({ limit: PAGE_SIZE, offset: 0, locale: locale.value !== 'th' ? locale.value : undefined })
   newsPosts.value = blogs.value.map(mapNews)
   if (blogs.value.length < PAGE_SIZE) {
     hasMore.value = false
@@ -54,17 +57,17 @@ onMounted(async () => {
 </script>
 <template>
   <UPage>
-    <UPageSection title="ข่าวสารและกิจกรรม"
-      description="ติดตามข่าวสารล่าสุด ความเคลื่อนไหว และกิจกรรมต่าง ๆ ของโครงการ"
+    <UPageSection :title="$t('news.title')"
+      :description="$t('news.description')"
       orientation="horizontal" />
 
     <UPageSection>
-      <UPageHeader title="ข่าวสารล่าสุด" class="border-none" />
+      <UPageHeader :title="$t('news.latest')" class="border-none" />
       <UBlogPosts :posts="newsPosts" />
 
       <div v-if="hasMore || loadingMore" class="flex justify-center mt-6">
         <UButton
-          :label="loadingMore ? 'กำลังโหลด...' : 'ดูเพิ่มเติม'"
+          :label="loadingMore ? $t('news.loading') : $t('news.view_more')"
           color="neutral"
           variant="outline"
           :loading="loadingMore"

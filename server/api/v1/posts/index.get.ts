@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { posts } from '#server/db/tables/posts'
-import { eq, sql } from 'drizzle-orm'
+import { postTranslations } from '#server/db/tables/post_translations'
+import { eq, sql, and } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -17,6 +18,12 @@ defineRouteMeta({
         in: 'query',
         name: 'offset',
         schema: { type: 'integer', default: 0 },
+      },
+      {
+        in: 'query',
+        name: 'locale',
+        schema: { type: 'string' },
+        description: 'Locale for translated content (e.g. "en"). Falls back to default (th) if no translation exists.',
       },
       {
         in: 'query',
@@ -41,16 +48,24 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
   const offset = Math.max(Number(query.offset) || 0, 0)
+  const locale = getLocale(query)
 
   const baseQuery = db.select({
     id: posts.id,
-    title: posts.title,
-    content: posts.content,
+    title: locale ? sql`COALESCE(${postTranslations.title}, ${posts.title})` : posts.title,
+    content: locale ? sql`COALESCE(${postTranslations.content}, ${posts.content})` : posts.content,
     likes: posts.likes,
     status: posts.status,
     authorId: posts.authorId,
     createdAt: posts.createdAt,
   }).from(posts)
+
+  if (locale) {
+    baseQuery.leftJoin(postTranslations, and(
+      eq(posts.id, postTranslations.postId),
+      eq(postTranslations.locale, locale)
+    ))
+  }
 
   // Build where conditions
   const conditions = []

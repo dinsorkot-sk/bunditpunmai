@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { posts } from '#server/db/tables/posts'
-import { eq } from 'drizzle-orm'
+import { postTranslations } from '#server/db/tables/post_translations'
+import { eq, and, sql } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -12,6 +13,12 @@ defineRouteMeta({
         name: 'id',
         required: true,
         schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'locale',
+        schema: { type: 'string' },
+        description: 'Locale for translated content (e.g. "en")',
       },
     ],
     responses: {
@@ -32,15 +39,27 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const result = await db.select({
+  const query = getQuery(event)
+  const locale = getLocale(query)
+
+  const baseQuery = db.select({
     id: posts.id,
-    title: posts.title,
-    content: posts.content,
+    title: locale ? sql`COALESCE(${postTranslations.title}, ${posts.title})` : posts.title,
+    content: locale ? sql`COALESCE(${postTranslations.content}, ${posts.content})` : posts.content,
     likes: posts.likes,
     status: posts.status,
     authorId: posts.authorId,
     createdAt: posts.createdAt,
-  }).from(posts).where(eq(posts.id, postId)).limit(1)
+  }).from(posts)
+
+  if (locale) {
+    baseQuery.leftJoin(postTranslations, and(
+      eq(posts.id, postTranslations.postId),
+      eq(postTranslations.locale, locale)
+    ))
+  }
+
+  const result = await baseQuery.where(eq(posts.id, postId)).limit(1)
 
   if (result.length === 0) {
     throw createError({

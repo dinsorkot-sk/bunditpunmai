@@ -1,6 +1,7 @@
 import { db } from '@nuxthub/db'
 import { tags } from '#server/db/tables/tags'
-import { eq } from 'drizzle-orm'
+import { tagTranslations } from '#server/db/tables/tag_translations'
+import { eq, and, sql } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
@@ -12,6 +13,12 @@ defineRouteMeta({
         name: 'id',
         required: true,
         schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'locale',
+        schema: { type: 'string' },
+        description: 'Locale for translated tag name (e.g. "en")',
       },
     ],
     responses: {
@@ -32,10 +39,22 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const result = await db.select({
+  const query = getQuery(event)
+  const locale = getLocale(query)
+
+  const baseQuery = db.select({
     id: tags.id,
-    name: tags.name,
-  }).from(tags).where(eq(tags.id, tagId)).limit(1)
+    name: locale ? sql`COALESCE(${tagTranslations.name}, ${tags.name})` : tags.name,
+  }).from(tags)
+
+  if (locale) {
+    baseQuery.leftJoin(tagTranslations, and(
+      eq(tags.id, tagTranslations.tagId),
+      eq(tagTranslations.locale, locale)
+    ))
+  }
+
+  const result = await baseQuery.where(eq(tags.id, tagId)).limit(1)
 
   if (result.length === 0) {
     throw createError({

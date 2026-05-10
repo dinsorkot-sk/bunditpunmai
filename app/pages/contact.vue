@@ -2,14 +2,16 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+const { t } = useI18n()
+
 // ── Form validation schema ──
 
 const schema = z.object({
-  name: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล'),
-  email: z.string().email('กรุณากรอกอีเมลให้ถูกต้อง'),
+  name: z.string().min(1, t('contact.name_required')),
+  email: z.string().email(t('contact.email_invalid')),
   phone: z.string().optional(),
-  subject: z.string().min(1, 'กรุณากรอกหัวข้อ'),
-  message: z.string().min(1, 'กรุณากรอกข้อความ'),
+  subject: z.string().min(1, t('contact.subject_required')),
+  message: z.string().min(1, t('contact.message_required')),
 })
 
 type Schema = z.output<typeof schema>
@@ -28,16 +30,13 @@ const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   isSubmitting.value = true
   try {
-    // In production, send data to API endpoint
-    // await $fetch('/api/v1/contact', { method: 'POST', body: event.data })
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // simulate send
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     toast.add({
-      title: 'ส่งข้อความสำเร็จ',
-      description: 'ทีมงานจะตอบกลับภายใน 1-2 วันทำการ',
+      title: t('contact.success_title'),
+      description: t('contact.success_desc'),
       color: 'success',
       icon: 'i-lucide-check-circle',
     })
-    // Reset form
     state.name = ''
     state.email = ''
     state.phone = ''
@@ -45,8 +44,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     state.message = ''
   } catch {
     toast.add({
-      title: 'ส่งข้อความไม่สำเร็จ',
-      description: 'กรุณาลองอีกครั้งหรือติดต่อผ่านช่องทางอื่น',
+      title: t('contact.error_title'),
+      description: t('contact.error_desc'),
       color: 'error',
       icon: 'i-lucide-alert-circle',
     })
@@ -70,7 +69,7 @@ const socialLinks: SocialLink[] = [
   { label: 'TikTok', icon: 'i-simple-icons-tiktok', url: 'https://www.tiktok.com/@bunditpunmai.mju' },
 ]
 
-// ── Contact info ──
+// ── Contact info (reactive) ──
 
 interface ContactInfo {
   icon: string
@@ -78,37 +77,35 @@ interface ContactInfo {
   content: string
 }
 
-const contactInfo: ContactInfo[] = [
+const contactInfo = computed<ContactInfo[]>(() => [
   {
     icon: 'i-lucide-map-pin',
-    title: 'Location',
-    content: `โครงการ BunditPunMai\nมหาวิทยาลัยแม่โจ้\n63 หมู่ 4 ตำบลหนองหาร\nอำเภอสันทราย จังหวัดเชียงใหม่ 50290`,
+    title: t('contact.location_title'),
+    content: t('site.university'),
   },
   {
     icon: 'i-lucide-phone',
-    title: 'Phone',
+    title: t('contact.phone_title'),
     content: '053-873000',
   },
   {
     icon: 'i-lucide-mail',
-    title: 'Email',
+    title: t('contact.email_title'),
     content: 'bunditpunmai@mju.ac.th',
   },
   {
     icon: 'i-lucide-clock',
-    title: 'Office Hours',
-    content: 'จันทร์ - ศุกร์ : 08:30 - 16:30 น.',
+    title: t('contact.hours_title'),
+    content: t('contact.hours_content'),
   },
-]
+])
 </script>
 
 <template>
   <UPage>
     <UPageSection
-      title=" ติดต่อเรา"
-      description="
-        หากมีคำถามเกี่ยวกับโครงการ BunditPunMai หรือต้องการข้อมูลเพิ่มเติมเกี่ยวกับกิจกรรม
-        หลักสูตร และการพัฒนาทักษะดิจิทัล สามารถติดต่อทีมงานของเราได้ตลอดเวลา"
+      :title="$t('contact.title')"
+      :description="$t('contact.description')"
       orientation="horizontal"
     />
     <UPageSection>
@@ -138,7 +135,7 @@ const contactInfo: ContactInfo[] = [
           <!-- Social Media -->
           <div class="pt-2">
             <h3 class="font-semibold text-sm uppercase tracking-wider mb-4">
-              Social Media
+              {{ $t('contact.social_media') }}
             </h3>
             <div class="flex items-center gap-3">
               <a
@@ -166,9 +163,9 @@ const contactInfo: ContactInfo[] = [
               body: 'p-6 sm:p-8',
             }"
           >
-            <h2 class="text-xl font-semibold  mb-1">ส่งข้อความถึงเรา</h2>
+            <h2 class="text-xl font-semibold mb-1">{{ $t('contact.form_title') }}</h2>
             <p class="text-sm mb-6">
-              กรอกข้อมูลด้านล่าง แล้วทีมงานจะตอบกลับโดยเร็วที่สุด
+              {{ $t('contact.form_description') }}
             </p>
 
             <UForm
@@ -177,49 +174,49 @@ const contactInfo: ContactInfo[] = [
               class="space-y-5"
               @submit="onSubmit"
             >
-              <UFormField name="name" label="ชื่อ-นามสกุล" required>
+              <UFormField name="name" :label="$t('contact.name_label')" required>
                 <UInput
                   v-model="state.name"
-                  placeholder="กรุณากรอกชื่อ-นามสกุล"
+                  :placeholder="$t('contact.name_placeholder')"
                   class="w-full"
                 />
               </UFormField>
 
               <div class="grid sm:grid-cols-2 gap-5">
-                <UFormField name="email" label="อีเมล" required>
+                <UFormField name="email" :label="$t('contact.email_label')" required>
                   <UInput
                     v-model="state.email"
                     type="email"
-                    placeholder="you@example.com"
+                    :placeholder="$t('contact.email_placeholder')"
                     class="w-full"
                   />
                 </UFormField>
 
-                <UFormField name="phone" label="เบอร์โทรศัพท์">
+                <UFormField name="phone" :label="$t('contact.phone_label')">
                   <UInput
                     v-model="state.phone"
                     type="tel"
-                    placeholder="099-999-9999"
+                    :placeholder="$t('contact.phone_placeholder')"
                     class="w-full"
                   />
                 </UFormField>
               </div>
 
-              <UFormField name="subject" label="หัวข้อ" required>
+              <UFormField name="subject" :label="$t('contact.subject_label')" required>
                 <UInput
                   v-model="state.subject"
-                  placeholder="หัวข้อที่ต้องการติดต่อ"
+                  :placeholder="$t('contact.subject_placeholder')"
                   class="w-full"
                 />
               </UFormField>
 
-              <UFormField name="message" label="ข้อความ" required>
+              <UFormField name="message" :label="$t('contact.message_label')" required>
                 <UTextarea
                   v-model="state.message"
                   :rows="4"
                   autoresize
                   :maxrows="8"
-                  placeholder="กรุณากรอกรายละเอียดข้อความของคุณ..."
+                  :placeholder="$t('contact.message_placeholder')"
                   class="w-full"
                 />
               </UFormField>
@@ -236,7 +233,7 @@ const contactInfo: ContactInfo[] = [
                 <template #leading>
                   <UIcon name="i-lucide-send" class="size-4" />
                 </template>
-                ส่งข้อความ
+                {{ $t('contact.send_button') }}
               </UButton>
             </UForm>
           </UCard>
@@ -244,10 +241,8 @@ const contactInfo: ContactInfo[] = [
       </div>
     </UPageSection>
 
-    <!-- ════════════════════════════════════════════════════════════
-         MAP SECTION
-       ════════════════════════════════════════════════════════════ -->
-    <UPageSection title="ที่อยู่ของเรา">
+    <!-- MAP SECTION -->
+    <UPageSection :title="$t('contact.map_title')">
       <div class="rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
         <iframe
           src="https://www.google.com/maps/embed?q=มหาวิทยาลัยแม่โจ้ เชียงใหม่"
@@ -257,7 +252,7 @@ const contactInfo: ContactInfo[] = [
           allowfullscreen
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          title="แผนที่มหาวิทยาลัยแม่โจ้"
+          :title="$t('contact.map_title')"
         />
       </div>
     </UPageSection>

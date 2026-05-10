@@ -11,12 +11,12 @@ export function useResources() {
   const loading = ref(false)
   const total = ref(0)
 
-  const fetchResources = async (params: { limit?: number; offset?: number } = {}) => {
+  const fetchResources = async (params: { limit?: number; offset?: number; locale?: string } = {}) => {
     loading.value = true
     try {
-      const result = await $fetch<ApiResource[]>('/api/v1/resources', {
-        query: { limit: params.limit ?? 20, offset: params.offset ?? 0 }
-      })
+      const query: Record<string, any> = { limit: params.limit ?? 20, offset: params.offset ?? 0 }
+      if (params.locale) query.locale = params.locale
+      const result = await $fetch<ApiResource[]>('/api/v1/resources', { query })
       resources.value = result
       total.value = result.length
     }
@@ -25,8 +25,9 @@ export function useResources() {
     }
   }
 
-  const getResource = async (id: number) => {
-    return $fetch(`/api/v1/resources/${id}`)
+  const getResource = async (id: number, locale?: string) => {
+    const query = locale ? { locale } : undefined
+    return $fetch(`/api/v1/resources/${id}`, { query })
   }
 
   const createResource = async (data: FormData) => {

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useCourses } from '~/composables/v1/useCourses'
 
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
 interface CourseCard {
   title: string
   description: string
@@ -23,7 +26,7 @@ function mapCourse(item: { id: number; title: string; description: string; creat
     description: item.description,
     date: item.createdAt,
     image: 'https://picsum.photos/800/600?random=course',
-    to: `/courses/${item.id}`,
+    to: localePath(`/courses/${item.id}`),
   }
 }
 
@@ -32,7 +35,7 @@ async function loadMore() {
   loadingMore.value = true
   try {
     offset.value += PAGE_SIZE
-    await fetchCourses({ limit: PAGE_SIZE, offset: offset.value })
+    await fetchCourses({ limit: PAGE_SIZE, offset: offset.value, locale: locale.value !== 'th' ? locale.value : undefined })
 
     const newPosts = courses.value.map(mapCourse)
     if (newPosts.length < PAGE_SIZE) {
@@ -45,7 +48,7 @@ async function loadMore() {
 }
 
 onMounted(async () => {
-  await fetchCourses({ limit: PAGE_SIZE, offset: 0 })
+  await fetchCourses({ limit: PAGE_SIZE, offset: 0, locale: locale.value !== 'th' ? locale.value : undefined })
   coursePosts.value = courses.value.map(mapCourse)
   if (courses.value.length < PAGE_SIZE) {
     hasMore.value = false
@@ -54,17 +57,17 @@ onMounted(async () => {
 </script>
 <template>
   <UPage>
-    <UPageSection title="เกี่ยวกับโครงการของเรา"
-      description="สร้างกำลังแรงงานแห่งอนาคตของประเทศไทยผ่านการศึกษาเชิงนวัตกรรมและความร่วมมือทางอุตสาหกรรม"
+    <UPageSection :title="$t('courses.page_title')"
+      :description="$t('courses.page_description')"
       orientation="horizontal" />
 
     <UPageSection>
-      <UPageHeader title="หลักสูตรแนะนำ" class="border-none" />
+      <UPageHeader :title="$t('courses.title')" class="border-none" />
       <UBlogPosts :posts="coursePosts" />
 
       <div v-if="hasMore || loadingMore" class="flex justify-center mt-6">
         <UButton
-          :label="loadingMore ? 'กำลังโหลด...' : 'ดูเพิ่มเติม'"
+          :label="loadingMore ? $t('courses.loading') : $t('courses.view_more')"
           color="neutral"
           variant="outline"
           :loading="loadingMore"
